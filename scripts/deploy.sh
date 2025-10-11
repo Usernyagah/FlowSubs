@@ -48,3 +48,4 @@ echo "   - transactions/cancel_subscription.cdc"
 echo "   - transactions/register_provider.cdc"
 echo "   - scripts/get_subscription.cdc"
 echo "   - scripts/get_provider_subscriptions.cdc"
+

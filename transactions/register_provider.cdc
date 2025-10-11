@@ -17,3 +17,4 @@ transaction(
         log("Registered as provider: ".concat(name))
     }
 }
+

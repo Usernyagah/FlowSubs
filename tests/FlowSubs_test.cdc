@@ -134,3 +134,4 @@ pub fun testValidation() {
         message: "Should fail with interval above maximum"
     )
 }
+

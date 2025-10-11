@@ -14,3 +14,4 @@ transaction(subscriptionId: UInt64) {
         log("Cancelled subscription with ID: ".concat(subscriptionId.toString()))
     }
 }
+

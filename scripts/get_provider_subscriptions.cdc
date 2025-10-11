@@ -8,3 +8,4 @@ pub fun main(provider: Address): [FlowSubs.Subscription] {
     // This is a placeholder for the script structure
     return []
 }
+

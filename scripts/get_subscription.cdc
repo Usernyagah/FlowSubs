@@ -8,3 +8,4 @@ pub fun main(subscriptionId: UInt64): FlowSubs.Subscription? {
     // This is a placeholder for the script structure
     return nil
 }
+

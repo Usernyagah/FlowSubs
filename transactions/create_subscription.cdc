@@ -37,3 +37,4 @@ transaction(
         log("Created subscription with ID: ".concat(subscriptionId.toString()))
     }
 }
+
