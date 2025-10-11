@@ -1,20 +1,13 @@
 {
-	"contracts": {
-		"FlowSubs": {
-			"source": "contracts/FlowSubs.cdc"
-		}
-	},
 	"networks": {
 		"emulator": "127.0.0.1:3569",
-		"testnet": "access.testnet.nodes.onflow.org:9000"
+		"mainnet": "access.mainnet.nodes.onflow.org:9000",
+		"testnet": "access.devnet.nodes.onflow.org:9000"
 	},
 	"accounts": {
 		"emulator-account": {
-			"address": "0xf8d6e0586b0a20c7",
-			"key": {
-				"type": "file",
-				"location": "emulator-account.pkey"
-			}
+			"address": "f8d6e0586b0a20c7",
+			"key": "9db62109ac83c3d5407b10e5abad714f839d9b2e8a77626826f63e920f7ebbc0"
 		}
 	}
 }
