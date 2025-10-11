@@ -67,6 +67,9 @@ export default function LandingPage() {
             <Button asChild variant="outline" size="lg" className="text-base bg-transparent">
               <Link href="/dashboard">View Dashboard</Link>
             </Button>
+            <Button asChild variant="secondary" size="lg" className="text-base">
+              <Link href="/contract-testing">Test Contracts</Link>
+            </Button>
           </div>
         </motion.div>
       </section>

@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import { Navbar } from "@/components/navbar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useFlow } from "@/contexts/flow-context"
+import { useFlowWallet } from "@/hooks/useFlowWallet"
+import { useFlowSubs } from "@/hooks/useFlowSubs"
 import { motion } from "framer-motion"
 import { Wallet, CreditCard, Activity, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -28,59 +29,21 @@ interface Payment {
 }
 
 export default function DashboardPage() {
-  const { isConnected, user, isLoading, error } = useFlow()
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
-  const [payments, setPayments] = useState<Payment[]>([])
+  const { connected, user, connecting, error: walletError, connect } = useFlowWallet()
+  const { subscriptions, payments, providers, loading: contractLoading, error: contractError, fetchSubscriptions, fetchPayments, fetchProviders } = useFlowSubs()
+  const [localSubscriptions, setLocalSubscriptions] = useState<Subscription[]>([])
+  const [localPayments, setLocalPayments] = useState<Payment[]>([])
 
   useEffect(() => {
-    if (isConnected) {
-      // Mock data - in production, fetch from contract events
-      setSubscriptions([
-        {
-          id: "1",
-          provider: "0x1234...5678",
-          amount: "10.00 FLOW",
-          interval: 30,
-          nextPayment: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          status: "active",
-        },
-        {
-          id: "2",
-          provider: "0xabcd...efgh",
-          amount: "25.00 FLOW",
-          interval: 7,
-          nextPayment: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-          status: "active",
-        },
-      ])
-
-      setPayments([
-        {
-          id: "1",
-          provider: "0x1234...5678",
-          amount: "10.00 FLOW",
-          timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-          status: "success",
-        },
-        {
-          id: "2",
-          provider: "0xabcd...efgh",
-          amount: "25.00 FLOW",
-          timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-          status: "success",
-        },
-        {
-          id: "3",
-          provider: "0x1234...5678",
-          amount: "10.00 FLOW",
-          timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-          status: "success",
-        },
-      ])
+    if (connected && user?.addr) {
+      // Fetch real data from contract
+      fetchSubscriptions(user.addr)
+      fetchPayments(user.addr)
+      fetchProviders()
     }
-  }, [isConnected])
+  }, [connected, user?.addr, fetchSubscriptions, fetchPayments, fetchProviders])
 
-  if (isLoading) {
+  if (connecting || contractLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -88,22 +51,22 @@ export default function DashboardPage() {
           <Card className="max-w-md mx-auto text-center p-12">
             <Loader2 className="w-16 h-16 text-primary mx-auto mb-4 animate-spin" />
             <h2 className="text-2xl font-bold mb-2">Loading...</h2>
-            <p className="text-muted-foreground">Initializing Flow blockchain connection</p>
+            <p className="text-muted-foreground">Loading dashboard data</p>
           </Card>
         </div>
       </div>
     )
   }
 
-  if (error) {
+  if (walletError) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-20">
           <Card className="max-w-md mx-auto text-center p-12 border-destructive">
             <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Connection Error</h2>
-            <p className="text-muted-foreground mb-6">{error}</p>
+            <h2 className="text-2xl font-bold mb-2">Wallet Connection Error</h2>
+            <p className="text-muted-foreground mb-6">{walletError}</p>
             <Button onClick={() => window.location.reload()}>Retry</Button>
           </Card>
         </div>
@@ -111,7 +74,91 @@ export default function DashboardPage() {
     )
   }
 
-  if (!isConnected) {
+  // Handle contract error gracefully - show development mode
+  if (contractError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <div className="mb-6">
+              <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertCircle className="w-5 h-5 text-yellow-600" />
+                    <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">Development Mode</h3>
+                  </div>
+                  <p className="text-yellow-700 dark:text-yellow-300 text-sm">
+                    Contract not deployed yet. This is a demo version with mock data.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <h1 className="text-4xl font-bold mb-8">Dashboard (Demo Mode)</h1>
+
+            {/* Wallet Info */}
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Wallet Address</CardTitle>
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold font-mono">{user?.addr}</div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
+                  <CreditCard className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">0</div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">0</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Demo Message */}
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Welcome to FlowSubs Demo</CardTitle>
+                <CardDescription>Your wallet is connected! To use real functionality, deploy the contract.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground mb-4">
+                    This is a demonstration of the FlowSubs interface. To enable full functionality:
+                  </p>
+                  <div className="text-left space-y-2 text-sm text-muted-foreground">
+                    <p>1. Deploy the FlowSubs contract to Flow testnet</p>
+                    <p>2. Update the contract address in the configuration</p>
+                    <p>3. Register as a provider or create subscriptions</p>
+                  </div>
+                  <Button asChild className="mt-6">
+                    <Link href="/subscribe">Try Subscription Interface</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!connected) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -120,6 +167,16 @@ export default function DashboardPage() {
             <AlertCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2">Wallet Not Connected</h2>
             <p className="text-muted-foreground mb-6">Please connect your wallet to view your dashboard.</p>
+            <Button onClick={connect} disabled={connecting}>
+              {connecting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                'Connect Wallet'
+              )}
+            </Button>
           </Card>
         </div>
       </div>

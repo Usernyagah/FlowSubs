@@ -3,14 +3,14 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { useFlow } from "@/contexts/flow-context"
+import { useFlowWallet } from "@/hooks/useFlowWallet"
 import { Wallet, LogOut, Loader2 } from "lucide-react"
 import { motion } from "framer-motion"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Navbar() {
   const pathname = usePathname()
-  const { isConnected, connect, disconnect, user, isLoading, error } = useFlow()
+  const { connected, connect, disconnect, user, connecting, error } = useFlowWallet()
 
   const isActive = (path: string) => pathname === path
 
@@ -49,16 +49,16 @@ export function Navbar() {
 
             <ThemeToggle />
 
-            {isLoading ? (
+            {connecting ? (
               <Button disabled size="sm" variant="outline">
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Loading...
+                Connecting...
               </Button>
             ) : error ? (
               <Button disabled size="sm" variant="destructive">
                 Connection Error
               </Button>
-            ) : isConnected ? (
+            ) : connected ? (
               <div className="flex items-center gap-3">
                 <div className="text-sm text-muted-foreground font-mono">
                   {user?.addr?.slice(0, 6)}...{user?.addr?.slice(-4)}

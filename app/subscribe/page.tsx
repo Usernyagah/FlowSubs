@@ -8,13 +8,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { useFlow } from "@/contexts/flow-context"
+import { useFlowWallet } from "@/hooks/useFlowWallet"
+import { useFlowSubs } from "@/hooks/useFlowSubs"
 import { useToast } from "@/hooks/use-toast"
 import { motion } from "framer-motion"
 import { AlertCircle, Loader2, CheckCircle2 } from "lucide-react"
 
 export default function SubscribePage() {
-  const { isConnected, executeTransaction, isLoading: fclLoading, error: fclError } = useFlow()
+  const { connected, connecting, error: walletError, connect } = useFlowWallet()
+  const { createSubscription, loading: contractLoading, error: contractError } = useFlowSubs()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -28,38 +30,32 @@ export default function SubscribePage() {
     setIsLoading(true)
 
     try {
-      // Mock transaction - in production, use actual Cadence transaction
-      const cadence = `
-        transaction(provider: Address, amount: UFix64, interval: UInt64) {
-          prepare(signer: AuthAccount) {
-            // Create subscription logic here
-            log("Creating subscription")
-          }
-          execute {
-            log("Subscription created successfully")
-          }
-        }
-      `
-
-      // Simulate transaction
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      toast({
-        title: "Subscription Created!",
-        description: (
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-primary" />
-            <span>Your subscription has been set up successfully.</span>
-          </div>
-        ),
+      const result = await createSubscription({
+        provider: formData.provider,
+        amount: parseFloat(formData.amount),
+        interval: parseFloat(formData.interval) * 86400, // Convert days to seconds
       })
 
-      // Reset form
-      setFormData({ provider: "", amount: "", interval: "" })
+      if (result.status === 'SEALED') {
+        toast({
+          title: "Subscription Created!",
+          description: (
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-primary" />
+              <span>Your subscription has been set up successfully.</span>
+            </div>
+          ),
+        })
+
+        // Reset form
+        setFormData({ provider: "", amount: "", interval: "" })
+      } else {
+        throw new Error(result.error || 'Transaction failed')
+      }
     } catch (error) {
       toast({
         title: "Transaction Failed",
-        description: "There was an error creating your subscription. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error creating your subscription. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -67,30 +63,30 @@ export default function SubscribePage() {
     }
   }
 
-  if (fclLoading) {
+  if (connecting) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-20">
           <Card className="max-w-md mx-auto text-center p-12">
             <Loader2 className="w-16 h-16 text-primary mx-auto mb-4 animate-spin" />
-            <h2 className="text-2xl font-bold mb-2">Loading...</h2>
-            <p className="text-muted-foreground">Initializing Flow blockchain connection</p>
+            <h2 className="text-2xl font-bold mb-2">Connecting...</h2>
+            <p className="text-muted-foreground">Connecting to Flow wallet</p>
           </Card>
         </div>
       </div>
     )
   }
 
-  if (fclError) {
+  if (walletError) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-20">
           <Card className="max-w-md mx-auto text-center p-12 border-destructive">
             <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Connection Error</h2>
-            <p className="text-muted-foreground mb-6">{fclError}</p>
+            <h2 className="text-2xl font-bold mb-2">Wallet Connection Error</h2>
+            <p className="text-muted-foreground mb-6">{walletError}</p>
             <Button onClick={() => window.location.reload()}>Retry</Button>
           </Card>
         </div>
@@ -98,7 +94,93 @@ export default function SubscribePage() {
     )
   }
 
-  if (!isConnected) {
+  // Handle contract error gracefully - show development mode
+  if (contractError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <div className="mb-6">
+              <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertCircle className="w-5 h-5 text-yellow-600" />
+                    <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">Development Mode</h3>
+                  </div>
+                  <p className="text-yellow-700 dark:text-yellow-300 text-sm">
+                    Contract not deployed yet. This is a demo version.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <h1 className="text-4xl font-bold mb-2">Create Subscription (Demo)</h1>
+            <p className="text-muted-foreground mb-8">Set up a recurring payment to a provider on the Flow blockchain.</p>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Subscription Details</CardTitle>
+                <CardDescription>Enter the provider address, amount, and payment interval</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="provider">Provider Address</Label>
+                    <Input
+                      id="provider"
+                      placeholder="0x1234567890abcdef"
+                      disabled
+                    />
+                    <p className="text-sm text-muted-foreground">Demo mode - input disabled</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Amount (FLOW)</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      step="0.01"
+                      placeholder="1.0"
+                      disabled
+                    />
+                    <p className="text-sm text-muted-foreground">Demo mode - input disabled</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="interval">Payment Interval (days)</Label>
+                    <Input
+                      id="interval"
+                      type="number"
+                      placeholder="30"
+                      disabled
+                    />
+                    <p className="text-sm text-muted-foreground">Demo mode - input disabled</p>
+                  </div>
+
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">
+                      To enable subscription creation:
+                    </p>
+                    <div className="text-left space-y-2 text-sm text-muted-foreground">
+                      <p>1. Deploy the FlowSubs contract to Flow testnet</p>
+                      <p>2. Update the contract address in the configuration</p>
+                      <p>3. Register as a provider first</p>
+                    </div>
+                    <Button disabled className="mt-6">
+                      Create Subscription (Demo Mode)
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!connected) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -107,6 +189,16 @@ export default function SubscribePage() {
             <AlertCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2">Wallet Not Connected</h2>
             <p className="text-muted-foreground mb-6">Please connect your wallet to create a subscription.</p>
+            <Button onClick={connect} disabled={connecting}>
+              {connecting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                'Connect Wallet'
+              )}
+            </Button>
           </Card>
         </div>
       </div>
@@ -192,8 +284,8 @@ export default function SubscribePage() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-                  {isLoading ? (
+                <Button type="submit" className="w-full" size="lg" disabled={isLoading || contractLoading}>
+                  {isLoading || contractLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating Subscription...

@@ -23,8 +23,12 @@ export function ThemeProvider({
 }) {
   const [theme, setThemeState] = useState<Theme>(defaultTheme)
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("dark")
+  const [mounted, setMounted] = useState(false)
 
+  // Prevent hydration mismatch by only running after mount
   useEffect(() => {
+    setMounted(true)
+    
     // Load theme from localStorage
     const stored = localStorage.getItem(storageKey) as Theme | null
     if (stored) {
@@ -33,6 +37,8 @@ export function ThemeProvider({
   }, [storageKey])
 
   useEffect(() => {
+    if (!mounted) return
+
     const root = window.document.documentElement
 
     // Remove previous theme classes
@@ -51,14 +57,31 @@ export function ThemeProvider({
     // Apply the theme
     root.classList.add(resolved)
     setResolvedTheme(resolved)
-  }, [theme])
+  }, [theme, mounted])
 
   const setTheme = (newTheme: Theme) => {
-    localStorage.setItem(storageKey, newTheme)
+    if (mounted) {
+      localStorage.setItem(storageKey, newTheme)
+    }
     setThemeState(newTheme)
   }
 
-  return <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>{children}</ThemeContext.Provider>
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div suppressHydrationWarning>
+        <ThemeContext.Provider value={{ theme: defaultTheme, setTheme, resolvedTheme: "dark" }}>
+          {children}
+        </ThemeContext.Provider>
+      </div>
+    )
+  }
+
+  return (
+    <div suppressHydrationWarning>
+      <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>{children}</ThemeContext.Provider>
+    </div>
+  )
 }
 
 export function useTheme() {

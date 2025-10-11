@@ -2,8 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
-import { FlowProvider } from "@/contexts/flow-context"
 import { ThemeProvider } from "@/components/theme-provider"
+import { FCLProvider } from "@/components/FCLProvider"
 import { Suspense } from "react"
 import "./globals.css"
 
@@ -25,14 +25,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <Suspense fallback={null}>
-            <FlowProvider>
+          <FCLProvider>
+            <Suspense fallback={null}>
               {children}
               <Toaster />
-            </FlowProvider>
-          </Suspense>
+            </Suspense>
+          </FCLProvider>
         </ThemeProvider>
       </body>
     </html>
