@@ -433,3 +433,4 @@ pub resource interface ProviderPublic {
     pub fun getProvider(provider: Address): ProviderInfo?
     pub fun getAllProviders(): [ProviderInfo]
 }
+
