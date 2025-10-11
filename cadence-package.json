@@ -1,0 +1,75 @@
+{
+  "name": "flowsubs-cadence",
+  "version": "1.0.0",
+  "description": "FlowSubs - Recurring subscription payments on Flow blockchain",
+  "main": "contracts/FlowSubs.cdc",
+  "scripts": {
+    "deploy": "node scripts/deploy.js",
+    "deploy:testnet": "flow contracts deploy contracts/FlowSubs.cdc --network testnet",
+    "deploy:mainnet": "flow contracts deploy contracts/FlowSubs.cdc --network mainnet",
+    "test": "flow test tests/FlowSubs_test.cdc",
+    "test:coverage": "flow test --coverage tests/FlowSubs_test.cdc",
+    "create-subscription": "flow transactions send transactions/create_subscription.cdc --network testnet",
+    "cancel-subscription": "flow transactions send transactions/cancel_subscription.cdc --network testnet",
+    "register-provider": "flow transactions send transactions/register_provider.cdc --network testnet",
+    "get-subscription": "flow scripts execute scripts/get_subscription.cdc --network testnet",
+    "get-provider-subscriptions": "flow scripts execute scripts/get_provider_subscriptions.cdc --network testnet",
+    "setup": "npm install && flow setup",
+    "dev": "npm run test && npm run deploy:testnet"
+  },
+  "keywords": [
+    "flow",
+    "blockchain",
+    "subscription",
+    "payments",
+    "cadence",
+    "defi",
+    "recurring-billing",
+    "forte-workflows"
+  ],
+  "author": "FlowSubs Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Usernyagah/FlowSubs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Usernyagah/FlowSubs/issues"
+  },
+  "homepage": "https://github.com/Usernyagah/FlowSubs#readme",
+  "devDependencies": {
+    "@onflow/flow-js-testing": "^0.3.0",
+    "@onflow/flow-cadut": "^0.1.0",
+    "@onflow/flow-ft": "^0.0.0"
+  },
+  "dependencies": {
+    "@forte-network/flow-service": "^1.0.0",
+    "@forte-network/workflow-engine": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "flow": {
+    "contracts": [
+      "contracts/FlowSubs.cdc"
+    ],
+    "transactions": [
+      "transactions/create_subscription.cdc",
+      "transactions/cancel_subscription.cdc",
+      "transactions/register_provider.cdc"
+    ],
+    "scripts": [
+      "scripts/get_subscription.cdc",
+      "scripts/get_provider_subscriptions.cdc"
+    ],
+    "tests": [
+      "tests/FlowSubs_test.cdc"
+    ]
+  },
+  "config": {
+    "flow": {
+      "network": "testnet",
+      "contractAddress": "0xYOUR_CONTRACT_ADDRESS"
+    }
+  }
+}
