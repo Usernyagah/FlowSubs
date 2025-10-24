@@ -10,31 +10,34 @@ FlowSubs revolutionizes subscription-based services by leveraging blockchain tec
 
 ## 🚀 Features
 
-### 💳 Recurring Onchain Subscriptions
+### 💳 Recurring Onchain Subscriptions ✅
 - **Smart Contract Automation**: Automated recurring payments powered by Cadence smart contracts
 - **Flexible Intervals**: Support for daily, weekly, monthly, and custom payment schedules
 - **Secure Payments**: Trustless payment execution with guaranteed fund transfers
-- **Forte Workflows Integration**: Automated payment processing with enterprise-grade reliability
+- **Subscription Management**: Create, view, and cancel subscriptions directly from the UI
+- **Payment Scheduling**: Automatic tracking of next payment dates
 
-### 🔗 Wallet Connection
-- **Flow-Compatible Wallets**: Support for Blocto, Flow Port, Dapper Wallet, and Lilico Wallet
+### 🔗 Wallet Connection ✅
+- **Flow-Compatible Wallets**: Support for Blocto, Lilico, and other Flow wallets
 - **Seamless Authentication**: One-click wallet connection with persistent sessions
 - **Cross-Platform**: Works on desktop and mobile devices
 - **Security First**: Private keys never leave your wallet
 - **Wallet Detection**: Automatic detection of connected wallet type
 - **Address Validation**: Prevents connection with placeholder or test addresses
 
-### 📊 Subscription Dashboard
-- **Real-Time Analytics**: Live subscription metrics and payment tracking
-- **Interactive Charts**: Visualize revenue trends and subscriber growth
-- **Payment History**: Complete transaction history with blockchain verification
-- **Subscription Management**: Easy creation, modification, and cancellation of subscriptions
+### 📊 Subscription Dashboard ✅
+- **Real-Time Data**: Live subscription metrics and status tracking
+- **Payment Schedule**: View upcoming payment dates for all subscriptions
+- **Subscription Management**: Easy creation and cancellation of subscriptions
+- **Wallet Integration**: Seamless connection to Flow testnet wallets
+- **Transaction Tracking**: Monitor subscription status on-chain
 
-### 💰 Provider Income Tracking
-- **Revenue Analytics**: Comprehensive income tracking and reporting
-- **Subscriber Insights**: Detailed subscriber demographics and behavior
-- **Payment Forecasting**: Predict future revenue based on active subscriptions
-- **Export Capabilities**: Download reports for accounting and tax purposes
+### 💰 Provider Features ✅
+- **Provider Registration**: Register as a service provider on-chain
+- **Subscriber Tracking**: View all users subscribed to your service
+- **Revenue Dashboard**: Monitor earnings and active subscriptions
+- **Provider Profile**: Manage your provider information
+- **Payment Visibility**: Track subscription payments to your wallet
 
 ## 🛠 Tech Stack
 
@@ -73,13 +76,21 @@ git clone https://github.com/Usernyagah/FlowSubs.git
 cd flowsubs-app
 ```
 
-### 2. Install Dependencies
+### 2. Install Frontend Dependencies
 
 ```bash
+cd client
 pnpm install
 ```
 
-### 3. Start the Frontend
+### 3. Configure Environment
+
+Create `client/.env.local` and add:
+```bash
+NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS=0xc1b85cc9470b7283
+```
+
+### 4. Start the Development Server
 
 ```bash
 pnpm dev
@@ -89,36 +100,49 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## 🔧 Contract Setup
 
-### Deploy to Flow Testnet
+### Deployed Contract (Flow Testnet)
 
-1. **Create Flow Account** (if you don't have one):
+✅ **FlowSubs is already deployed to Flow Testnet!**
+
+The contract is live at: `0xc1b85cc9470b7283`
+
+**Quick Setup:**
+
+1. **Set Environment Variable**:
+   Create a `.env.local` file in the project root and add:
    ```bash
-   flow accounts create
+   NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS=0xc1b85cc9470b7283
    ```
 
-2. **Fund Your Account** with testnet FLOW tokens:
-   - Visit [Flow Testnet Faucet](https://testnet-faucet.onflow.org/)
-   - Enter your account address
-   - Request testnet FLOW tokens
-
-3. **Deploy the Contract**:
+2. **Restart Dev Server**:
    ```bash
-   flow contracts deploy contracts/FlowSubs.cdc --network testnet
+   pnpm dev
    ```
 
-4. **Update Contract Address**:
-   Replace `0xYOUR_CONTRACT_ADDRESS` in the following files with your deployed contract address:
-   - `lib/fcl-config.ts`
-   - `transactions/*.cdc`
-   - `scripts/*.cdc`
+3. **Connect Your Wallet**:
+   - Open [http://localhost:3000](http://localhost:3000)
+   - Click "Connect Wallet"
+   - Use Blocto, Lilico, or another Flow testnet wallet
+   - Start creating subscriptions!
 
 ### Contract Addresses
 
 | Contract | Testnet Address | Description |
 |----------|----------------|-------------|
-| FlowSubs | `0xYOUR_CONTRACT_ADDRESS` | Main subscription contract |
+| FlowSubs | `0xc1b85cc9470b7283` | Main subscription contract (✅ Deployed) |
 | FlowToken | `0x7e60df042a9c0868` | FLOW token contract |
 | FungibleToken | `0x9a0766d93b6608b7` | Fungible token standard |
+
+### Deploy Your Own Instance (Optional)
+
+If you want to deploy your own instance of the contract, you can use the Flow CLI:
+
+```bash
+# From project root
+flow project deploy --network testnet
+```
+
+Or deploy via a Cadence transaction from your wallet interface.
 
 ## 🧪 Testing
 
@@ -152,7 +176,7 @@ chmod +x scripts/setup_demo_data.sh
 ./scripts/setup_demo_data.sh
 
 # Windows
-.\scripts\setup_demo_data.ps1 -ContractAddress 0xYourContractAddress
+.\scripts\setup_demo_data.ps1 -ContractAddress 0xc1b85cc9470b7283
 ```
 
 ## 📱 Usage
@@ -175,26 +199,33 @@ chmod +x scripts/setup_demo_data.sh
 
 ```
 flowsubs-app/
-├── app/                    # Next.js app directory
-│   ├── dashboard/         # Subscription dashboard
-│   ├── subscribe/         # Subscription creation flow
-│   └── contract-testing/ # Contract testing interface
-├── components/            # React components
-│   ├── ui/               # ShadCN UI components
-│   ├── navbar.tsx        # Navigation component
-│   └── theme-*.tsx       # Theme management
-├── contracts/            # Cadence smart contracts
-│   └── FlowSubs.cdc     # Main subscription contract
-├── hooks/                # React hooks
-│   ├── useFlowWallet.ts # Wallet connection hook
-│   └── useFlowSubs.ts   # Contract interaction hook
-├── lib/                  # Utility functions
-│   ├── fcl-config.ts    # FCL configuration
-│   └── utils.ts         # Helper functions
+├── client/                 # Frontend Application (Next.js)
+│   ├── app/               # Next.js app directory
+│   │   ├── dashboard/    # User dashboard
+│   │   ├── subscribe/    # Create subscriptions
+│   │   ├── page.tsx      # Landing page
+│   │   └── layout.tsx    # App layout
+│   ├── components/       # React components & UI
+│   ├── hooks/            # Custom React hooks
+│   │   ├── useFlowWallet.ts
+│   │   └── useFlowSubs.ts
+│   ├── lib/              # Utilities & FCL config
+│   ├── public/           # Static assets
+│   ├── styles/           # Global styles
+│   ├── types/            # TypeScript definitions
+│   └── package.json      # Frontend dependencies
+│
+├── cadence/              # Smart Contracts (Cadence 1.0)
+│   └── contracts/
+│       └── FlowSubs.cdc # Main subscription contract
+│
 ├── transactions/         # Cadence transactions
-├── scripts/             # Cadence scripts and utilities
-└── tests/               # Test files
+├── scripts/             # Cadence read scripts
+├── tests/               # Contract tests
+└── flow.json            # Flow CLI configuration
 ```
+
+See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for detailed information.
 
 ## 🔒 Security
 
@@ -208,7 +239,7 @@ flowsubs-app/
 
 | Network | Status | Contract Address |
 |---------|--------|------------------|
-| Flow Testnet | ✅ Active | `0xYOUR_CONTRACT_ADDRESS` |
+| Flow Testnet | ✅ Active | `0xc1b85cc9470b7283` |
 | Flow Mainnet | 🚧 Coming Soon | TBD |
 
 ## 📸 Screenshots
@@ -247,11 +278,10 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📚 Documentation
 
-- [Smart Contract Documentation](README_CADENCE.md)
-- [React Hooks Guide](README_HOOKS.md)
-- [Demo Data Setup](README_DEMO_DATA.md)
-- [Test Suite Documentation](README_TESTS.md)
-- [API Reference](docs/API.md)
+- [Project Structure Guide](PROJECT_STRUCTURE.md) - Detailed project organization
+- [Flow Blockchain Docs](https://docs.onflow.org/) - Flow blockchain documentation
+- [Cadence Language](https://cadence-lang.org/) - Smart contract language reference
+- [FCL Documentation](https://docs.onflow.org/fcl/) - Flow Client Library guide
 
 ## 🐛 Bug Reports
 
