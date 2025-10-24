@@ -4,6 +4,8 @@
 
 FlowSubs is a decentralized subscription management platform built on Flow blockchain, enabling secure recurring payments with smart contracts and automated workflows.
 
+> **🎉 MVP Complete!** Fully deployed on Flow Testnet with all features. Ready for use and testing.
+
 ## Overview
 
 FlowSubs revolutionizes subscription-based services by leveraging blockchain technology to create trustless, automated recurring payments. Built on Flow's developer-friendly blockchain, it provides a seamless experience for both service providers and subscribers with transparent, secure, and automated payment processing.
@@ -102,28 +104,40 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ### Deployed Contract (Flow Testnet)
 
-✅ **FlowSubs is already deployed to Flow Testnet!**
+✅ **FlowSubs is fully deployed to Flow Testnet with all features!**
 
 The contract is live at: `0xc1b85cc9470b7283`
+
+**Latest Update**: Contract updated with provider dashboard functions (October 24, 2025)
 
 **Quick Setup:**
 
 1. **Set Environment Variable**:
-   Create a `.env.local` file in the project root and add:
+   Create a `client/.env.local` file and add:
    ```bash
    NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS=0xc1b85cc9470b7283
    ```
 
-2. **Restart Dev Server**:
+2. **Start Development**:
    ```bash
+   cd client
+   pnpm install
    pnpm dev
    ```
 
 3. **Connect Your Wallet**:
-   - Open [http://localhost:3000](http://localhost:3000)
+   - Open [http://localhost:3001](http://localhost:3001)
    - Click "Connect Wallet"
    - Use Blocto, Lilico, or another Flow testnet wallet
    - Start creating subscriptions!
+
+**Contract Features**:
+- ✅ Create & cancel subscriptions
+- ✅ Register as provider
+- ✅ Query subscriptions by subscriber
+- ✅ Query subscriptions by provider (NEW)
+- ✅ Get due subscriptions for payment tracking (NEW)
+- ✅ Fully Cadence 1.0 compliant
 
 ### Contract Addresses
 
