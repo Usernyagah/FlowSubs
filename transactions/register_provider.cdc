@@ -1,18 +1,15 @@
 // register_provider.cdc
 // Transaction to register as a provider
 
-import FlowSubs from 0xYOUR_CONTRACT_ADDRESS
+import FlowSubs from 0xFlowSubs
 
 transaction(
     name: String,
     description: String
 ) {
     prepare(acct: AuthAccount) {
-        // Get the FlowSubs contract reference
-        let flowSubs = acct.getContract<&FlowSubs>(name: "FlowSubs")
-        
-        // Register as a provider
-        flowSubs.registerProvider(name: name, description: description)
+        // Register as a provider directly on the contract
+        FlowSubs.registerProvider(name: name, description: description)
 
         log("Registered as provider: ".concat(name))
     }
