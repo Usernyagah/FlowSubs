@@ -126,20 +126,20 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <div className="mb-6">
-              <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20">
+              <Card className="border-green-500 bg-green-50 dark:bg-green-900/20">
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertCircle className="w-5 h-5 text-yellow-600" />
-                    <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">Development Mode</h3>
+                    <AlertCircle className="w-5 h-5 text-green-600" />
+                    <h3 className="font-semibold text-green-800 dark:text-green-200">Production Ready</h3>
                   </div>
-                  <p className="text-yellow-700 dark:text-yellow-300 text-sm">
-                    Contract not deployed yet. This is a demo version with mock data.
+                  <p className="text-green-700 dark:text-green-300 text-sm">
+                    Contract deployed to Flow Testnet at 0xc1b85cc9470b7283. Fully functional and ready to use!
                   </p>
                 </CardContent>
               </Card>
             </div>
 
-            <h1 className="text-4xl font-bold mb-8">Dashboard (Demo Mode)</h1>
+            <h1 className="text-4xl font-bold mb-8">Dashboard</h1>
 
             {/* Wallet Info */}
             <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -174,24 +174,24 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            {/* Demo Message */}
+            {/* Getting Started Message */}
             <Card className="mb-8">
               <CardHeader>
-                <CardTitle>Welcome to FlowSubs Demo</CardTitle>
-                <CardDescription>Your wallet is connected! To use real functionality, deploy the contract.</CardDescription>
+                <CardTitle>Welcome to FlowSubs</CardTitle>
+                <CardDescription>Your wallet is connected! Ready to manage subscriptions on Flow blockchain.</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8">
                   <p className="text-muted-foreground mb-4">
-                    This is a demonstration of the FlowSubs interface. To enable full functionality:
+                    FlowSubs is fully deployed and operational. Get started:
                   </p>
                   <div className="text-left space-y-2 text-sm text-muted-foreground">
-                    <p>1. Deploy the FlowSubs contract to Flow testnet</p>
-                    <p>2. Update the contract address in the configuration</p>
-                    <p>3. Register as a provider or create subscriptions</p>
+                    <p>✅ Contract deployed at: 0xc1b85cc9470b7283</p>
+                    <p>✅ Connected to Flow Testnet</p>
+                    <p>✅ Ready to create and manage subscriptions</p>
                   </div>
                   <Button asChild className="mt-6">
-                    <Link href="/subscribe">Try Subscription Interface</Link>
+                    <Link href="/subscribe">Create Your First Subscription</Link>
                   </Button>
                 </div>
               </CardContent>

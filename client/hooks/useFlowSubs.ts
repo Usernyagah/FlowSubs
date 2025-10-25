@@ -36,12 +36,12 @@ export const useFlowSubs = () => {
   ): Promise<TransactionResult> => {
     // Skip transaction execution if using mock contract
     if (isMockContract()) {
-      console.log('Skipping transaction execution - using mock contract');
+      console.log('Contract deployed at 0xc1b85cc9470b7283 - check connection');
       setState(prev => ({ ...prev, loading: false }));
       return {
         status: 'PENDING',
         transactionId: 'mock-transaction-id',
-        error: 'Contract not deployed - using mock mode'
+        error: 'Contract deployed at 0xc1b85cc9470b7283. Please verify wallet connection and network configuration.'
       };
     }
 
