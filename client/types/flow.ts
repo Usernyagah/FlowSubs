@@ -70,11 +70,15 @@ export interface FCLConfig {
   "0xFlowSubs": string; // Contract address
   "discovery.wallet.method"?: string;
   "discovery.wallet.method.default"?: string;
+  "discovery.wallet.method.walletconnect"?: string;
+  "fcl.wallet.connect"?: string;
+  "walletconnect.projectId"?: string;
   "app.detail.id"?: string;
   "app.detail.url"?: string;
   "fcl.walletConnect.projectId"?: string | null;
   "fcl.limit"?: number;
   "fcl.debug"?: boolean;
+  [key: string]: any; // Allow additional string keys
 }
 
 // Transaction status

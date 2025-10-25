@@ -20,6 +20,11 @@ const fclConfig: FCLConfig = {
   'discovery.wallet.method': 'IFRAME/RPC',
   'discovery.wallet.method.default': 'IFRAME/RPC',
   
+  // WalletConnect configuration
+  'discovery.wallet.method.walletconnect': 'WALLETCONNECT',
+  'fcl.wallet.connect': 'https://fcl-ecosystem-walletconnect.vercel.app',
+  'walletconnect.projectId': process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'YOUR_WALLETCONNECT_PROJECT_ID',
+  
   // App details
   'app.detail.id': 'flowsubs-app',
   'app.detail.url': 'https://flowsubs.com',
