@@ -92,7 +92,7 @@ export const useFlowSubs = () => {
   // Generic function to handle scripts
   const executeScript = useCallback(async (
     scriptCode: string,
-    args: any[] = []
+    argsBuilder: any = []
   ): Promise<any> => {
     // Skip script execution if using mock contract
     if (isMockContract()) {
@@ -106,7 +106,7 @@ export const useFlowSubs = () => {
 
       const result = await query({
         cadence: scriptCode,
-        args: args,
+        args: typeof argsBuilder === 'function' ? argsBuilder : argsBuilder,
       });
 
       setState(prev => ({ ...prev, loading: false }));
@@ -208,8 +208,13 @@ export const useFlowSubs = () => {
         return [];
       }
 
-      const args = [
-        { type: 'Address', value: address },
+      // Ensure the address is properly formatted
+      const formattedAddress = address.startsWith('0x') ? address : `0x${address}`;
+      
+      console.log('Fetching subscriptions for address:', formattedAddress);
+      
+      const args = (arg: any, t: any) => [
+        arg(formattedAddress, t.Address)
       ];
 
       const result = await executeScript(SCRIPT_TEMPLATES.getSubscriberSubscriptions, args);
@@ -280,15 +285,15 @@ export const useFlowSubs = () => {
       // Skip script execution if using mock contract
       if (isMockContract()) {
         console.log('Skipping providers fetch - using mock contract');
-        setState(prev => ({ 
-          ...prev, 
+        setState(prev => ({
+          ...prev,
           providers: [],
-          loading: false 
+          loading: false,
         }));
         return [];
       }
 
-      const result = await executeScript(SCRIPT_TEMPLATES.getAllProviders);
+      const result = await executeScript(SCRIPT_TEMPLATES.getAllProviders, (arg: any, t: any) => []);
       
       // Transform the result to match our ProviderInfo interface
       const providers: ProviderInfo[] = result?.map((provider: any) => ({
