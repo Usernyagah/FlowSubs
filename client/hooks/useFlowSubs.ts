@@ -2,7 +2,7 @@
 // React hook for FlowSubs contract interactions
 
 import { useState, useEffect, useCallback } from 'react';
-import { send, query, transaction, script } from '@onflow/fcl';
+import * as fcl from '@onflow/fcl';
 import { useFlowWallet } from './useFlowWallet';
 import { TRANSACTION_TEMPLATES, SCRIPT_TEMPLATES, CONTRACT_ADDRESSES } from '@/lib/fcl-config';
 import type { 
@@ -53,16 +53,17 @@ export const useFlowSubs = () => {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
       // Build the transaction with proper argument formatting
-      const transactionId = await send([
-        transaction(transactionCode),
-        ...(typeof argsBuilder === 'function' ? argsBuilder() : []),
-        (tx: any) => {
-          tx.proposer = user;
-          tx.payer = user;
-          tx.authorizations = [user];
-          tx.limit = 999; // Gas limit
-          return tx;
-        }
+      const transactionId = await fcl.send([
+        fcl.transaction(transactionCode),
+        fcl.args([
+          fcl.arg(params.provider, t.Address),
+          fcl.arg(params.amount.toString(), t.UFix64),
+          fcl.arg(params.interval.toString(), t.UFix64)
+        ]),
+        fcl.payer(fcl.authz),
+        fcl.proposer(fcl.authz),
+        fcl.authorizations([fcl.authz]),
+        fcl.limit(999)
       ]);
 
       // Wait for transaction to be sealed
@@ -135,29 +136,53 @@ export const useFlowSubs = () => {
 
   // Create a new subscription
   const createSubscription = useCallback(async (
-    params: CreateSubscriptionParams
+    subscriptionParams: CreateSubscriptionParams
   ): Promise<TransactionResult> => {
     if (!connected || !user?.addr) {
       throw new Error('Wallet not connected');
     }
 
-    // Format arguments as a function that returns the arguments array
-    const args = () => [
-      (arg: any, t: any) => [
-        arg(params.provider, t.Address),
-        arg(params.amount.toString(), t.UFix64),
-        arg(params.interval.toString(), t.UFix64)
-      ]
-    ];
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
 
-    const result = await executeTransaction(TRANSACTION_TEMPLATES.createSubscription, args);
-    
-    if (result.status === 'SEALED') {
-      // Refresh subscriptions after successful creation
-      await fetchSubscriptions(user.addr);
+      // Using fcl.mutate for a more straightforward transaction
+      const transactionId = await fcl.mutate({
+        cadence: TRANSACTION_TEMPLATES.createSubscription,
+        args: (arg: any, t: any) => [
+          arg(subscriptionParams.provider, t.Address),
+          arg(subscriptionParams.amount.toString(), t.UFix64),
+          arg(subscriptionParams.interval.toString(), t.UFix64)
+        ],
+        limit: 999
+      });
+
+      // Wait for transaction to be sealed
+      const tx = await fcl.tx(transactionId).onceSealed();
+      
+      if (tx.status === 4) { // Sealed
+        // Refresh subscriptions after successful creation
+        await fetchSubscriptions(user.addr);
+        return {
+          status: 'SEALED',
+          transactionId,
+        };
+      } else {
+        throw new Error(`Transaction failed with status: ${tx.status}`);
+      }
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Transaction failed';
+      setState(prev => ({ 
+        ...prev, 
+        loading: false,
+        error: errorMessage
+      }));
+      return {
+        status: 'PENDING',
+        transactionId: '',
+        error: errorMessage,
+      };
     }
-
-    return result;
   }, [connected, user, executeTransaction]);
 
   // Cancel a subscription
