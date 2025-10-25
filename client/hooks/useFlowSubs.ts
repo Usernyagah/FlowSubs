@@ -46,32 +46,43 @@ export const useFlowSubs = () => {
     }
 
     try {
+      if (!user?.addr) {
+        throw new Error('User wallet not connected');
+      }
+
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      const txId = await send([
+      // Create and send the transaction
+      const transactionId = await send([
         transaction(transactionCode),
-        ...args,
-        { proposer: user, payer: user, authorizations: [user] }
+        ...args.map(arg => arg),
+        (tx: any) => {
+          tx.proposer = user;
+          tx.payer = user;
+          tx.authorizations = [user];
+          tx.limit = 999; // Gas limit
+          return tx;
+        }
       ]);
 
       // Wait for transaction to be sealed
-      const tx = await query({ id: txId });
+      const tx = await query(transactionId);
       
       if (tx.status === 4) { // Sealed
         return {
           status: 'SEALED',
-          transactionId: txId,
+          transactionId,
         };
       } else if (tx.status === 5) { // Expired
         return {
           status: 'EXPIRED',
-          transactionId: txId,
+          transactionId,
           error: 'Transaction expired',
         };
       } else {
         return {
           status: 'PENDING',
-          transactionId: txId,
+          transactionId,
         };
       }
     } catch (error) {
