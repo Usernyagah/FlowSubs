@@ -145,13 +145,20 @@ export const useFlowSubs = () => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
+      // Format amount and interval as strings with decimal points for UFix64
+      const formatUFix64 = (value: number | string) => {
+        // Ensure the value has a decimal point for UFix64
+        const str = typeof value === 'string' ? value : value.toString();
+        return str.includes('.') ? str : `${str}.0`;
+      };
+
       // Using fcl.mutate for a more straightforward transaction
       const transactionId = await fcl.mutate({
         cadence: TRANSACTION_TEMPLATES.createSubscription,
         args: (arg: any, t: any) => [
           arg(subscriptionParams.provider, t.Address),
-          arg(subscriptionParams.amount.toString(), t.UFix64),
-          arg(subscriptionParams.interval.toString(), t.UFix64)
+          arg(formatUFix64(subscriptionParams.amount), t.UFix64),
+          arg(formatUFix64(subscriptionParams.interval), t.UFix64)
         ],
         limit: 999
       });
