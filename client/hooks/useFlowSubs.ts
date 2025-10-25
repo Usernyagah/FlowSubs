@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import * as fcl from '@onflow/fcl';
+const { query } = fcl;
 import { useFlowWallet } from './useFlowWallet';
 import { TRANSACTION_TEMPLATES, SCRIPT_TEMPLATES, CONTRACT_ADDRESSES } from '@/lib/fcl-config';
 import type { 
