@@ -29,10 +29,13 @@ export const useFlowSubs = () => {
     return CONTRACT_ADDRESSES.FlowSubs === '0x1234567890123456';
   }, []);
 
+  // Import FCL argument builder
+  const { arg, t } = require('@onflow/fcl');
+
   // Generic function to handle transactions
   const executeTransaction = useCallback(async (
     transactionCode: string,
-    args: any[] = []
+    argsBuilder: any
   ): Promise<TransactionResult> => {
     // Skip transaction execution if using mock contract
     if (isMockContract()) {
@@ -52,16 +55,15 @@ export const useFlowSubs = () => {
 
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      // Create and send the transaction
+      // Build the transaction with proper argument formatting
       const transactionId = await send([
         transaction(transactionCode),
-        ...args.map(arg => arg),
-        (tx: any) => {
-          tx.proposer = user;
-          tx.payer = user;
-          tx.authorizations = [user];
-          tx.limit = 999; // Gas limit
-          return tx;
+        ...(typeof argsBuilder === 'function' ? argsBuilder(arg, t) : argsBuilder),
+        {
+          proposer: user,
+          payer: user,
+          authorizations: [user],
+          limit: 999 // Gas limit
         }
       ]);
 
@@ -141,10 +143,11 @@ export const useFlowSubs = () => {
       throw new Error('Wallet not connected');
     }
 
-    const args = [
-      { type: 'Address', value: params.provider },
-      { type: 'UFix64', value: params.amount.toString() },
-      { type: 'UFix64', value: params.interval.toString() },
+    // Format arguments using FCL's argument builder
+    const args = (arg: any, t: any) => [
+      arg(params.provider, t.Address),
+      arg(params.amount.toString(), t.UFix64),
+      arg(params.interval.toString(), t.UFix64)
     ];
 
     const result = await executeTransaction(TRANSACTION_TEMPLATES.createSubscription, args);
