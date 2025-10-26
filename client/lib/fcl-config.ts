@@ -27,7 +27,7 @@ const fclConfig: FCLConfig = {
   
   // App details
   'app.detail.id': 'flowsubs-app',
-  'app.detail.url': 'https://flowsubs.com',
+  'app.detail.url': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   
   // Flow Port configuration
   'fcl.limit': 9999,
