@@ -137,11 +137,11 @@ pub fun testSubscriptionCreation() {
                     // Ensure FlowToken vault exists
                     if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
                         acct.save(FlowToken.createEmptyVault(), to: /storage/flowTokenVault)
-                        acct.link<&FlowToken.Vault{FungibleToken.Receiver}>(
+                        acct.link<&FlowToken.Vault & FungibleToken.Receiver>(
                             /public/flowTokenReceiver,
                             target: /storage/flowTokenVault
                         )
-                        acct.link<&FlowToken.Vault{FungibleToken.Balance}>(
+                        acct.link<&FlowToken.Vault & FungibleToken.Balance>(
                             /public/flowTokenBalance,
                             target: /storage/flowTokenVault
                         )
@@ -300,11 +300,11 @@ pub fun testDuplicateSubscriptions() {
                 // Ensure FlowToken vault exists
                 if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
                     acct.save(FlowToken.createEmptyVault(), to: /storage/flowTokenVault)
-                    acct.link<&FlowToken.Vault{FungibleToken.Receiver}>(
+                    acct.link<&FlowToken.Vault & FungibleToken.Receiver>(
                         /public/flowTokenReceiver,
                         target: /storage/flowTokenVault
                     )
-                    acct.link<&FlowToken.Vault{FungibleToken.Balance}>(
+                    acct.link<&FlowToken.Vault & FungibleToken.Balance>(
                         /public/flowTokenBalance,
                         target: /storage/flowTokenVault
                     )
@@ -417,11 +417,11 @@ pub fun testDemoDataStructure() {
                     // Ensure FlowToken vault exists
                     if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
                         acct.save(FlowToken.createEmptyVault(), to: /storage/flowTokenVault)
-                        acct.link<&FlowToken.Vault{FungibleToken.Receiver}>(
+                        acct.link<&FlowToken.Vault & FungibleToken.Receiver>(
                             /public/flowTokenReceiver,
                             target: /storage/flowTokenVault
                         )
-                        acct.link<&FlowToken.Vault{FungibleToken.Balance}>(
+                        acct.link<&FlowToken.Vault & FungibleToken.Balance>(
                             /public/flowTokenBalance,
                             target: /storage/flowTokenVault
                         )
@@ -504,11 +504,11 @@ pub fun testSubscriptionEvents() {
                 // Ensure FlowToken vault exists
                 if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
                     acct.save(FlowToken.createEmptyVault(), to: /storage/flowTokenVault)
-                    acct.link<&FlowToken.Vault{FungibleToken.Receiver}>(
+                    acct.link<&FlowToken.Vault & FungibleToken.Receiver>(
                         /public/flowTokenReceiver,
                         target: /storage/flowTokenVault
                     )
-                    acct.link<&FlowToken.Vault{FungibleToken.Balance}>(
+                    acct.link<&FlowToken.Vault & FungibleToken.Balance>(
                         /public/flowTokenBalance,
                         target: /storage/flowTokenVault
                     )
@@ -580,11 +580,11 @@ pub fun testQueryFunctions() {
                     // Ensure FlowToken vault exists
                     if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
                         acct.save(FlowToken.createEmptyVault(), to: /storage/flowTokenVault)
-                        acct.link<&FlowToken.Vault{FungibleToken.Receiver}>(
+                        acct.link<&FlowToken.Vault & FungibleToken.Receiver>(
                             /public/flowTokenReceiver,
                             target: /storage/flowTokenVault
                         )
-                        acct.link<&FlowToken.Vault{FungibleToken.Balance}>(
+                        acct.link<&FlowToken.Vault & FungibleToken.Balance>(
                             /public/flowTokenBalance,
                             target: /storage/flowTokenVault
                         )
