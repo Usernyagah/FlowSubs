@@ -1,46 +1,42 @@
 // lib/fcl-config.ts
-// FCL configuration for Flow blockchain
-
+// FCL configuration for Flow blockchain — ensure only 1 config and correct settings
 import { config } from '@onflow/fcl';
 import type { FCLConfig } from '@/types/flow';
 
 const getContractAddress = (): string => {
-  return process.env.NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS || '0x1234567890123456';
+  // Use Vercel env var or real testnet fallback; never a dummy value
+  return process.env.NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS || '0xc1b85cc9470b7283';
 };
 
-// Simple FCL Configuration for Flow testnet
+// IMPORTANT: Only initialize FCL once, do NOT call config() in a component or elsewhere
 const fclConfig: FCLConfig = {
   'app.detail.title': 'FlowSubs - Subscription Management',
   'app.detail.icon': 'https://placehold.co/600x400/000000/FFFFFF/png?text=FlowSubs',
   'accessNode.api': 'https://rest-testnet.onflow.org',
   '0xFlowSubs': getContractAddress(),
-  
-  // Discovery service configuration
+
+  // Discovery service (REQUIRED for wallet auth to work)
   'discovery.wallet': 'https://fcl-discovery.onflow.org/testnet/authn',
   'discovery.wallet.method': 'IFRAME/RPC',
   'discovery.wallet.method.default': 'IFRAME/RPC',
-  
-  // WalletConnect configuration
+
+  // WalletConnect plugin, using env project ID
   'discovery.wallet.method.walletconnect': 'WALLETCONNECT',
   'fcl.wallet.connect': 'https://fcl-ecosystem-walletconnect.vercel.app',
   'walletconnect.projectId': process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'YOUR_WALLETCONNECT_PROJECT_ID',
-  
-  // App details
+
   'app.detail.id': 'flowsubs-app',
+  // Must match your deploy (set NEXT_PUBLIC_APP_URL in Vercel dashboard)
   'app.detail.url': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  
-  // Flow Port configuration
+
   'fcl.limit': 9999,
   'fcl.debug': process.env.NODE_ENV === 'development',
 };
 
-// Initialize FCL with configuration
+// Only call this ONCE, at global/module scope
 export const initializeFCL = () => {
   console.log('🔧 Initializing FCL...');
-  
-  // Configure FCL with our settings
   config(fclConfig);
-  
   console.log('✅ FCL initialized');
   console.log('🔧 FCL Config:', {
     'discovery.wallet': fclConfig['discovery.wallet'],
@@ -49,7 +45,7 @@ export const initializeFCL = () => {
   });
 };
 
-// Initialize FCL globally so it runs once per app lifetime (not in React tree)
+// Initialize globally
 initializeFCL();
 
 // Contract addresses
