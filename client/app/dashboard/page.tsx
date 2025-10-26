@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import Link from "next/link"
+import { useAccountSubscriptionRefetch } from "@/hooks/useAccountSubscriptionRefetch";
 
 interface Subscription {
   id: string
@@ -86,6 +87,10 @@ export default function DashboardPage() {
       fetchProviders()
     }
   }, [connected, user?.addr, fetchSubscriptions, fetchPayments, fetchProviders])
+
+  useAccountSubscriptionRefetch(user?.addr, () => {
+    if (user?.addr) fetchSubscriptions(user.addr);
+  });
 
   if (connecting || contractLoading) {
     return (

@@ -10,6 +10,7 @@ import { motion } from "framer-motion"
 import { Wallet, Users, DollarSign, Activity, AlertCircle, Loader2, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useAccountSubscriptionRefetch } from "@/hooks/useAccountSubscriptionRefetch";
 
 export default function ProviderDashboardPage() {
   const { connected, user, connecting, error: walletError, connect } = useFlowWallet()
@@ -52,6 +53,10 @@ export default function ProviderDashboardPage() {
       })
     }
   }, [subscriptions, connected, user?.addr])
+
+  useAccountSubscriptionRefetch(user?.addr, () => {
+    if (user?.addr) fetchSubscriptions(user.addr);
+  });
 
   if (connecting || contractLoading) {
     return (
