@@ -49,6 +49,9 @@ export const initializeFCL = () => {
   });
 };
 
+// Initialize FCL globally so it runs once per app lifetime (not in React tree)
+initializeFCL();
+
 // Contract addresses
 export const CONTRACT_ADDRESSES = {
   FlowSubs: fclConfig['0xFlowSubs'],

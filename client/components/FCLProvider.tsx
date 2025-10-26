@@ -4,10 +4,5 @@ import { useEffect } from 'react'
 import { initializeFCL } from '@/lib/fcl-config'
 
 export function FCLProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    // Initialize FCL when component mounts
-    initializeFCL()
-  }, [])
-
   return <>{children}</>
 }
