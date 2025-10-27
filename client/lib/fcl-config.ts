@@ -15,10 +15,9 @@ const fclConfig: FCLConfig = {
   'accessNode.api': 'https://rest-testnet.onflow.org',
   '0xFlowSubs': getContractAddress(),
 
-  // Discovery service (REQUIRED for wallet auth to work)
-  'discovery.wallet': 'https://fcl-discovery.onflow.org/testnet/authn',
-  'discovery.wallet.method': 'IFRAME/RPC',
-  'discovery.wallet.method.default': 'IFRAME/RPC',
+  // REQUIRED: Discovery endpoint for wallet authentication
+  // Do NOT use 'discovery.wallet' key—must be 'discovery.authn.endpoint'
+  'discovery.authn.endpoint': 'https://fcl-discovery.onflow.org/testnet/authn',
 
   // WalletConnect plugin, using env project ID
   'discovery.wallet.method.walletconnect': 'WALLETCONNECT',
