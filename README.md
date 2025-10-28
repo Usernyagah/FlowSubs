@@ -366,3 +366,20 @@ If you find FlowSubs useful, please give it a star on GitHub! It helps us reach 
 ---
 
 **Built with ❤️ on Flow Blockchain**
+
+## → Vercel Production Deployment
+
+To deploy FlowSubs on Vercel with correct configuration:
+
+- Go to your project in the Vercel dashboard.
+- Navigate to **Settings → Environment Variables**.
+- Add the following (with correct, real values):
+  - `NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS` — must start with `0x` and be 18 characters, e.g.
+    - `0xc1b85cc9470b7283` (example/testnet contract)
+  - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` — (if using WalletConnect)
+    - Use the actual project ID provided by WalletConnect.
+- **Deploy or redeploy your Vercel project after setting these.**
+
+**Addresses must always be valid Flow addresses (0x-prefixed). Misconfiguration will cause errors.**
+
+For local dev, copy `.env.example` to `.env.local` and use the same format.
