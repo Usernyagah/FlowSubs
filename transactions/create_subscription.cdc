@@ -2,8 +2,6 @@
 // Transaction to create a new subscription
 
 import FlowSubs from 0xFlowSubs
-import FlowToken from 0x7e60df042a9c0868
-import FungibleToken from 0x9a0766d93b6608b7
 
 transaction(
     provider: Address,
@@ -11,20 +9,8 @@ transaction(
     interval: UFix64
 ) {
     prepare(acct: AuthAccount) {
-        // Ensure the account has a FlowToken vault
-        if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
-            acct.save(<-FlowToken.Vault.createEmptyVault(), to: /storage/flowTokenVault)
-            acct.link<&{FungibleToken.Receiver}>(
-                /public/flowTokenReceiver,
-                target: /storage/flowTokenVault
-            )
-            acct.link<&{FungibleToken.Balance}>(
-                /public/flowTokenBalance,
-                target: /storage/flowTokenVault
-            )
-        }
-
         // Create the subscription directly on the contract
+        // Note: User must have a FlowToken vault set up before using this transaction
         let subscriptionId = FlowSubs.createSubscription(
             subscriber: acct.address,
             provider: provider,

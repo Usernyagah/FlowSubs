@@ -2,8 +2,6 @@
 // Transaction to create a demo subscription
 
 import FlowSubs from 0xYOUR_CONTRACT_ADDRESS
-import FlowToken from 0x7e60df042a9c0868
-import FungibleToken from 0x9a0766d93b6608b7
 
 transaction(
     provider: Address,
@@ -11,19 +9,8 @@ transaction(
     interval: UFix64
 ) {
     prepare(acct: AuthAccount) {
-        // Ensure the account has a FlowToken vault
-        if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
-            acct.save(<-FlowToken.Vault.createEmptyVault(), to: /storage/flowTokenVault)
-            acct.link<&{FungibleToken.Receiver}>(
-                /public/flowTokenReceiver,
-                target: /storage/flowTokenVault
-            )
-            acct.link<&{FungibleToken.Balance}>(
-                /public/flowTokenBalance,
-                target: /storage/flowTokenVault
-            )
-        }
-
+        // Note: User must have a FlowToken vault set up before using this transaction
+        
         // Get the FlowSubs contract reference
         let flowSubs = acct.getContract<&FlowSubs>(name: "FlowSubs")
         

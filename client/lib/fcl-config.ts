@@ -62,8 +62,6 @@ export const CONTRACT_ADDRESSES = {
 export const TRANSACTION_TEMPLATES = {
   createSubscription: `
     import FlowSubs from ${fclConfig['0xFlowSubs']}
-    import FlowToken from ${CONTRACT_ADDRESSES.FlowToken}
-    import FungibleToken from ${CONTRACT_ADDRESSES.FungibleToken}
 
     transaction(
       provider: Address,
@@ -71,19 +69,8 @@ export const TRANSACTION_TEMPLATES = {
       interval: UFix64
     ) {
       prepare(acct: AuthAccount) {
-        // Ensure the account has a FlowToken vault
-        if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
-          acct.save(<-FlowToken.Vault.createEmptyVault(), to: /storage/flowTokenVault)
-          acct.link<&{FungibleToken.Receiver}>(
-            /public/flowTokenReceiver,
-            target: /storage/flowTokenVault
-          )
-          acct.link<&{FungibleToken.Balance}>(
-            /public/flowTokenBalance,
-            target: /storage/flowTokenVault
-          )
-        }
-
+        // Note: User must have a FlowToken vault set up before using this transaction
+        
         // Create the subscription directly on the contract
         let subscriptionId = FlowSubs.createSubscription(
           subscriber: acct.address,
