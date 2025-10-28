@@ -142,6 +142,8 @@ export const CONTRACT_ADDRESSES = {
 export const TRANSACTION_TEMPLATES = {
   createSubscription: `
 import FlowSubs from ${fclConfig['0xFlowSubs']}
+import FungibleToken from 0x9a0766d93b6608b7
+import FlowToken from 0x7e60df042a9c0868
 
 transaction(
   provider: Address,
@@ -163,6 +165,8 @@ transaction(
   
   cancelSubscription: `
 import FlowSubs from ${fclConfig['0xFlowSubs']}
+import FungibleToken from 0x9a0766d93b6608b7
+import FlowToken from 0x7e60df042a9c0868
 
 transaction(subscriptionId: UInt64) {
   prepare(acct: AuthAccount) {
@@ -175,6 +179,8 @@ transaction(subscriptionId: UInt64) {
 
   registerProvider: `
 import FlowSubs from ${fclConfig['0xFlowSubs']}
+import FungibleToken from 0x9a0766d93b6608b7
+import FlowToken from 0x7e60df042a9c0868
 
 transaction(
   name: String,
