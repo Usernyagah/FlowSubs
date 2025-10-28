@@ -14,12 +14,14 @@
     "@onflow/types": "workspace:*"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "workspace:*",
     "@types/node": "workspace:*",
     "@types/react": "workspace:*",
     "@types/react-dom": "workspace:*",
+    "autoprefixer": "^10.4.14",
     "eslint": "workspace:*",
     "eslint-config-next": "workspace:*",
+    "postcss": "^8.4.27",
+    "tailwindcss": "^3.3.3",
     "typescript": "workspace:*"
   },
   "packageManager": "pnpm@10.2.0"
