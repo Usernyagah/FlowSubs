@@ -179,6 +179,10 @@ export const useFlowSubs = () => {
         error: errorMessage
       }));
       return {
+        status: 'ERROR',
+        transactionId: '',
+        error: errorMessage
+      };
     }
   }, [executeTransaction]);
 
