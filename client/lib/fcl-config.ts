@@ -74,11 +74,11 @@ export const TRANSACTION_TEMPLATES = {
         // Ensure the account has a FlowToken vault
         if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
           acct.save(FlowToken.createEmptyVault(), to: /storage/flowTokenVault)
-          acct.link<&FlowToken.Vault{FungibleToken.Receiver}>(
+          acct.link<&{FungibleToken.Receiver}>(
             /public/flowTokenReceiver,
             target: /storage/flowTokenVault
           )
-          acct.link<&FlowToken.Vault{FungibleToken.Balance}>(
+          acct.link<&{FungibleToken.Balance}>(
             /public/flowTokenBalance,
             target: /storage/flowTokenVault
           )
