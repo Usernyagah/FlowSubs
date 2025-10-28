@@ -35,15 +35,16 @@ const getAppUrl = (): string => {
 const getFCLConfig = (): FCLConfig => {
   const appUrl = getAppUrl();
   const isDevelopment = process.env.NODE_ENV === 'development';
-  const isTestnet = process.env.NEXT_PUBLIC_FLOW_NETWORK === 'testnet';
+  // Default to testnet if not specified
+  const isTestnet = process.env.NEXT_PUBLIC_FLOW_NETWORK !== 'mainnet';
 
   // Base configuration with required properties
   const config: FCLConfig = {
     // Required properties
     'accessNode.api': isTestnet ? 'https://rest-testnet.onflow.org' : 'https://rest-mainnet.onflow.org',
-    'discovery.wallet': isDevelopment 
-      ? 'http://localhost:8701/flow/dapp' 
-      : 'https://fcl-discovery.onflow.org/testnet/authn',
+    'discovery.wallet': isTestnet 
+      ? 'https://fcl-discovery.onflow.org/testnet/authn'
+      : 'https://fcl-discovery.onflow.org/authn',
     '0xFlowSubs': getContractAddress(),
     
     // App metadata
@@ -58,13 +59,13 @@ const getFCLConfig = (): FCLConfig => {
     'fcl.debug': isDevelopment,
   };
 
-  // Network configuration
+  // Use testnet by default
   if (isTestnet) {
-    // Testnet configuration
-    config['accessNode.api'] = 'https://rest-testnet.onflow.org';
+    config['app.detail.icon'] = `${appUrl}/flow-logo.png`;
     config['discovery.wallet'] = 'https://fcl-discovery.onflow.org/testnet/authn';
-    config['discovery.authn.endpoint'] = 'https://fcl-discovery.onflow.org/testnet/authn';
-    config['fcl.eventsPollRate'] = 2000; // Poll every 2 seconds
+    config['accessNode.api'] = 'https://rest-testnet.onflow.org';
+    config['0xFlowToken'] = '0x7e60df042a9c0868';
+    config['0xFungibleToken'] = '0x9a0766d93b6608b7';
   } else {
     // Mainnet configuration
     config['accessNode.api'] = 'https://rest-mainnet.onflow.org';
