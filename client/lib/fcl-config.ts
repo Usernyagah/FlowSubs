@@ -35,27 +35,66 @@ const getAppUrl = (): string => {
 const getFCLConfig = (): FCLConfig => {
   const appUrl = getAppUrl();
   const isDevelopment = process.env.NODE_ENV === 'development';
+  const isTestnet = process.env.NEXT_PUBLIC_FLOW_NETWORK === 'testnet';
 
+  // Base configuration with required properties
   const config: FCLConfig = {
+    // Required properties
+    'accessNode.api': isTestnet ? 'https://rest-testnet.onflow.org' : 'https://rest-mainnet.onflow.org',
+    'discovery.wallet': isDevelopment 
+      ? 'http://localhost:8701/flow/dapp' 
+      : 'https://fcl-discovery.onflow.org/testnet/authn',
+    '0xFlowSubs': getContractAddress(),
+    
+    // App metadata
     'app.detail.title': 'FlowSubs - Subscription Management',
     'app.detail.icon': `${appUrl}/logo.png`,
-    'accessNode.api': 'https://rest-testnet.onflow.org',
-    '0xFlowSubs': getContractAddress(),
-    'discovery.authn.endpoint': 'https://fcl-discovery.onflow.org/testnet/authn',
-    'discovery.wallet': 'https://fcl-discovery.onflow.org/testnet/authn',
-    'discovery.wallet.method.walletconnect': 'WALLETCONNECT',
-    'fcl.wallet.connect': 'https://fcl-ecosystem-walletconnect.vercel.app',
-    'walletconnect.projectId': process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
     'app.detail.id': 'flowsubs-app',
     'app.detail.url': appUrl,
+    'flow.network': isTestnet ? 'testnet' : 'mainnet',
+    
+    // FCL settings
     'fcl.limit': 9999,
     'fcl.debug': isDevelopment,
-    // WebSocket configuration
-    'fcl.ws': 'wss://rest-testnet.onflow.org/ws',
-    'fcl.ws.opts': {
-      retry: 3,
-      timeout: 10000,
-    },
+  };
+
+  // Network configuration
+  if (isTestnet) {
+    // Testnet configuration
+    config['accessNode.api'] = 'https://rest-testnet.onflow.org';
+    config['discovery.wallet'] = 'https://fcl-discovery.onflow.org/testnet/authn';
+    config['discovery.authn.endpoint'] = 'https://fcl-discovery.onflow.org/testnet/authn';
+    config['fcl.eventsPollRate'] = 2000; // Poll every 2 seconds
+  } else {
+    // Mainnet configuration
+    config['accessNode.api'] = 'https://rest-mainnet.onflow.org';
+    config['discovery.wallet'] = 'https://fcl-discovery.onflow.org/authn';
+    config['discovery.authn.endpoint'] = 'https://fcl-discovery.onflow.org/api/testnet/authn';
+  }
+
+  // Development-specific configuration
+  if (isDevelopment) {
+    // Use local discovery service in development
+    config['discovery.wallet'] = 'http://localhost:8701/flow/dapp';
+    config['discovery.authn.endpoint'] = 'http://localhost:8701/flow/authenticate';
+    
+    // Enable CORS for local development
+    config['fcl.wallet.post.includeDomain'] = true;
+    config['fcl.wallet.post.origin'] = appUrl;
+  }
+
+  // WalletConnect configuration
+  if (process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID) {
+    config['discovery.wallet.method.walletconnect'] = 'WALLETCONNECT';
+    config['fcl.wallet.connect'] = 'https://fcl-ecosystem-walletconnect.vercel.app';
+    config['walletconnect.projectId'] = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
+  }
+
+  // WebSocket configuration
+  config['fcl.ws'] = isTestnet ? 'wss://rest-testnet.onflow.org/ws' : 'wss://rest-mainnet.onflow.org/ws';
+  config['fcl.ws.opts'] = {
+    retry: 3,
+    timeout: 10000,
   };
 
   return config;

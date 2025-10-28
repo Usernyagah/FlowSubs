@@ -1,0 +1,26 @@
+{
+  "name": "flowsubs-app",
+  "version": "1.0.0",
+  "description": "FlowSubs - Subscription Management on Flow Blockchain",
+  "main": "index.js",
+  "scripts": {
+    "init": "node scripts/init.js",
+    "deploy": "node scripts/deploy.js",
+    "test": "cd client && npm test",
+    "dev": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd client && npm start"
+  },
+  "keywords": ["flow", "blockchain", "subscriptions", "web3"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@onflow/fcl": "^1.0.0",
+    "@onflow/types": "^1.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.0",
+    "@babel/preset-env": "^7.18.0",
+    "jest": "^28.1.0"
+  }
+}

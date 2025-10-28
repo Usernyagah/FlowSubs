@@ -63,22 +63,48 @@ export interface FlowSubsState {
 
 // FCL Configuration
 export interface FCLConfig {
-  "app.detail.title": string;
-  "app.detail.icon": string;
+  // Required properties
   "accessNode.api": string;
   "discovery.wallet": string;
-  "0xFlowSubs": string; // Contract address
+  "0xFlowSubs": string;
+  
+  // App metadata
+  "app.detail.title"?: string;
+  "app.detail.icon"?: string;
+  "app.detail.id"?: string;
+  "app.detail.url"?: string;
+  
+  // Network configuration
+  "flow.network"?: 'testnet' | 'mainnet' | 'emulator' | 'sandboxnet';
+  
+  // Wallet configuration
+  "discovery.authn.endpoint"?: string;
   "discovery.wallet.method"?: string;
   "discovery.wallet.method.default"?: string;
   "discovery.wallet.method.walletconnect"?: string;
   "fcl.wallet.connect"?: string;
   "walletconnect.projectId"?: string;
-  "app.detail.id"?: string;
-  "app.detail.url"?: string;
+  // This property is allowed to be null for type compatibility
   "fcl.walletConnect.projectId"?: string | null;
+  
+  // FCL settings
   "fcl.limit"?: number;
   "fcl.debug"?: boolean;
-  [key: string]: any; // Allow additional string keys
+  "fcl.eventsPollRate"?: number;
+  
+  // WebSocket configuration
+  "fcl.ws"?: string;
+  "fcl.ws.opts"?: {
+    retry?: number;
+    timeout?: number;
+  };
+  
+  // CORS and domain settings
+  "fcl.wallet.post.includeDomain"?: boolean;
+  "fcl.wallet.post.origin"?: string;
+  
+  // Add index signature to allow any string key with string, number, boolean, object, or null values
+  [key: string]: string | number | boolean | object | null | undefined;
 }
 
 // Transaction status
