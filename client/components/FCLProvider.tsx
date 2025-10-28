@@ -1,28 +1,38 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { initializeFCL } from '@/lib/fcl-config';
 import { config } from '@onflow/fcl';
 
+// Track initialization state outside the component to prevent multiple initializations
+let isFCLInitialized = false;
+
 export function FCLProvider({ children }: { children: React.ReactNode }) {
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(isFCLInitialized);
   const [error, setError] = useState<Error | null>(null);
+  const initStarted = useRef(false);
 
   useEffect(() => {
+    // Prevent multiple initializations
+    if (initStarted.current || isFCLInitialized) return;
+    initStarted.current = true;
+
     const init = async () => {
       try {
-        // Initialize FCL with proper error handling
-        await initializeFCL();
-        
-        // Configure WebSocket connection
-        config()
-          .put('fcl.ws', 'wss://rest-testnet.onflow.org/ws')
-          .put('fcl.ws.opts', {
-            retry: 3,
-            timeout: 10000,
-          });
+        if (!isFCLInitialized) {
+          await initializeFCL();
+          
+          // Configure WebSocket connection
+          config()
+            .put('fcl.ws', 'wss://rest-testnet.onflow.org/ws')
+            .put('fcl.ws.opts', {
+              retry: 3,
+              timeout: 10000,
+            });
 
-        setIsInitialized(true);
+          isFCLInitialized = true;
+          setIsInitialized(true);
+        }
       } catch (err) {
         console.error('Failed to initialize FCL:', err);
         setError(err instanceof Error ? err : new Error('Failed to initialize FCL'));

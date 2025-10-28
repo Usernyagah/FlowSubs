@@ -114,35 +114,62 @@ const getFCLConfig = (): FCLConfig => {
   return config;
 };
 
+// Track initialization state
+let isInitialized = false;
+
 // Get the config for use in templates
-const fclConfig = getFCLConfig();
+export const fclConfig = getFCLConfig();
 
 // Only call this ONCE, at global/module scope
-let initialized = false;
-export const initializeFCL = () => {
-  if (initialized) {
-    console.log('⚠️ FCL already initialized, skipping...');
+export function initializeFCL() {
+  if (isInitialized) {
+    console.log('FCL already initialized, skipping...');
     return;
   }
   
-  console.log('🔧 Initializing FCL...');
-  
-  // Get fresh config with current URL
-  const fclConfigInstance = getFCLConfig();
-  
-  config(fclConfigInstance);
-  console.log('✅ FCL initialized');
-  console.log('🔧 FCL Config (subset in use):', {
-    'discovery.authn.endpoint': fclConfigInstance['discovery.authn.endpoint'],
-    'accessNode.api': fclConfigInstance['accessNode.api'],
-    '0xFlowSubs': fclConfigInstance['0xFlowSubs'],
-    'walletconnect.projectId': fclConfigInstance['walletconnect.projectId'],
-    'app.detail.url': fclConfigInstance['app.detail.url']
-  });
-  // Print the actual contract address explicitly for debugging runtime env
-  console.warn('[DEBUG] FlowSubs Contract Address in use:', fclConfigInstance['0xFlowSubs']);
-  initialized = true;
-};
+  try {
+    console.log('🔧 Initializing FCL...');
+    
+    // Get fresh config with current URL
+    const fclConfig = getFCLConfig();
+    
+    // Apply each config value individually
+    Object.entries(fclConfig).forEach(([key, value]) => {
+      if (value !== undefined && key !== 'httpRequest') {
+        // Use FCL's config method to set each value
+        config()
+          .put(key, value)
+          .put('fcl.limit', 9999)
+          .put('fcl.debug', process.env.NODE_ENV === 'development')
+          .put('fcl.ws', fclConfig['fcl.ws'])
+          .put('fcl.ws.opts', fclConfig['fcl.ws.opts']);
+      }
+    });
+    
+    isInitialized = true;
+    console.log('✅ FCL initialized');
+    
+    // Debug log the important config values
+    console.log('🔧 FCL Config (subset in use):', {
+      'discovery.authn.endpoint': fclConfig['discovery.authn.endpoint'],
+      'accessNode.api': fclConfig['accessNode.api'],
+      '0xFlowSubs': fclConfig['0xFlowSubs'],
+      'walletconnect.projectId': fclConfig['walletconnect.projectId'],
+      'app.detail.url': fclConfig['app.detail.url']
+    });
+    
+    // Print the actual contract address explicitly for debugging runtime env
+    console.log('[DEBUG] FlowSubs Contract Address in use:', fclConfig['0xFlowSubs']);
+  } catch (error) {
+    console.error('❌ Failed to initialize FCL:', error);
+    throw error;
+  }
+}
+
+// Initialize FCL when this module is imported (client-side only)
+if (typeof window !== 'undefined') {
+  initializeFCL();
+}
 
 // Contract addresses
 export const CONTRACT_ADDRESSES = {
