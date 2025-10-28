@@ -40,12 +40,24 @@ const getFCLConfig = (): FCLConfig => {
 
   // Base configuration with required properties
   const config: FCLConfig = {
-    // Required properties
-    'accessNode.api': isTestnet ? 'https://rest-testnet.onflow.org' : 'https://rest-mainnet.onflow.org',
+    // Required properties with CORS proxy
+    'accessNode.api': isTestnet 
+      ? 'https://rest-testnet.onflow.org' 
+      : 'https://rest-mainnet.onflow.org',
     'discovery.wallet': isTestnet 
       ? 'https://fcl-discovery.onflow.org/testnet/authn'
       : 'https://fcl-discovery.onflow.org/authn',
     '0xFlowSubs': getContractAddress(),
+    
+    // Add CORS headers
+    'httpRequest': {
+      'headers': {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Credentials': 'true'
+      }
+    },
     
     // App metadata
     'app.detail.title': 'FlowSubs - Subscription Management',
