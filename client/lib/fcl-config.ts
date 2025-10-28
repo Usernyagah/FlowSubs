@@ -18,29 +18,37 @@ const getAppUrl = (): string => {
   return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 };
 
-// IMPORTANT: Only initialize FCL once, do NOT call config() in a component or elsewhere
-const fclConfig: FCLConfig = {
-  'app.detail.title': 'FlowSubs - Subscription Management',
-  'app.detail.icon': 'https://placehold.co/600x400/000000/FFFFFF/png?text=FlowSubs',
-  'accessNode.api': 'https://rest-testnet.onflow.org',
-  '0xFlowSubs': getContractAddress(),
+// Create a function to get FCL config with proper URL
+const getFCLConfig = (): FCLConfig => {
+  const appUrl = typeof window !== 'undefined' 
+    ? window.location.origin 
+    : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
 
-  // Discovery endpoints (required for wallet authentication, legacy+modern)
-  'discovery.authn.endpoint': 'https://fcl-discovery.onflow.org/testnet/authn',
-  'discovery.wallet': 'https://fcl-discovery.onflow.org/testnet/authn', // legacy, required by some wallets
+  return {
+    'app.detail.title': 'FlowSubs - Subscription Management',
+    'app.detail.icon': 'https://placehold.co/600x400/000000/FFFFFF/png?text=FlowSubs',
+    'accessNode.api': 'https://rest-testnet.onflow.org',
+    '0xFlowSubs': getContractAddress(),
 
-  // WalletConnect plugin, using env project ID
-  'discovery.wallet.method.walletconnect': 'WALLETCONNECT',
-  'fcl.wallet.connect': 'https://fcl-ecosystem-walletconnect.vercel.app',
-  'walletconnect.projectId': process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '2b9573d0cfcd983bc65de6e956573f28',
+    // Discovery endpoints (required for wallet authentication, legacy+modern)
+    'discovery.authn.endpoint': 'https://fcl-discovery.onflow.org/testnet/authn',
+    'discovery.wallet': 'https://fcl-discovery.onflow.org/testnet/authn', // legacy, required by some wallets
 
-  'app.detail.id': 'flowsubs-app',
-  // Must match your deploy (set NEXT_PUBLIC_APP_URL in Vercel dashboard)
-  'app.detail.url': getAppUrl(),
+    // WalletConnect plugin, using env project ID
+    'discovery.wallet.method.walletconnect': 'WALLETCONNECT',
+    'fcl.wallet.connect': 'https://fcl-ecosystem-walletconnect.vercel.app',
+    'walletconnect.projectId': process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '2b9573d0cfcd983bc65de6e956573f28',
 
-  'fcl.limit': 9999,
-  'fcl.debug': process.env.NODE_ENV === 'development',
+    'app.detail.id': 'flowsubs-app',
+    'app.detail.url': appUrl,
+
+    'fcl.limit': 9999,
+    'fcl.debug': process.env.NODE_ENV === 'development',
+  };
 };
+
+// Get the config for use in templates
+const fclConfig = getFCLConfig();
 
 // Only call this ONCE, at global/module scope
 let initialized = false;
@@ -49,24 +57,23 @@ export const initializeFCL = () => {
     console.log('⚠️ FCL already initialized, skipping...');
     return;
   }
+  
   console.log('🔧 Initializing FCL...');
   
-  // Update URL dynamically for client-side
-  if (typeof window !== 'undefined') {
-    fclConfig['app.detail.url'] = window.location.origin;
-  }
+  // Get fresh config with current URL
+  const fclConfigInstance = getFCLConfig();
   
-  config(fclConfig);
+  config(fclConfigInstance);
   console.log('✅ FCL initialized');
   console.log('🔧 FCL Config (subset in use):', {
-    'discovery.authn.endpoint': fclConfig['discovery.authn.endpoint'],
-    'accessNode.api': fclConfig['accessNode.api'],
-    '0xFlowSubs': fclConfig['0xFlowSubs'],
-    'walletconnect.projectId': fclConfig['walletconnect.projectId'],
-    'app.detail.url': fclConfig['app.detail.url']
+    'discovery.authn.endpoint': fclConfigInstance['discovery.authn.endpoint'],
+    'accessNode.api': fclConfigInstance['accessNode.api'],
+    '0xFlowSubs': fclConfigInstance['0xFlowSubs'],
+    'walletconnect.projectId': fclConfigInstance['walletconnect.projectId'],
+    'app.detail.url': fclConfigInstance['app.detail.url']
   });
   // Print the actual contract address explicitly for debugging runtime env
-  console.warn('[DEBUG] FlowSubs Contract Address in use:', fclConfig['0xFlowSubs']);
+  console.warn('[DEBUG] FlowSubs Contract Address in use:', fclConfigInstance['0xFlowSubs']);
   initialized = true;
 };
 
