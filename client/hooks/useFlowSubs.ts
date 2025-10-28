@@ -240,7 +240,6 @@ export const useFlowSubs = () => {
       throw error;
     }
   }, [fetchProviders]);
-  }, [connected, user, executeTransaction]);
 
   // Fetch subscriptions for a user
   const fetchSubscriptions = useCallback(async (address: string): Promise<Subscription[]> => {

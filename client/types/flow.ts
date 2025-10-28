@@ -108,7 +108,7 @@ export interface FCLConfig {
 }
 
 // Transaction status
-export type TransactionStatus = 'PENDING' | 'EXECUTED' | 'SEALED' | 'EXPIRED';
+export type TransactionStatus = 'PENDING' | 'EXECUTED' | 'SEALED' | 'EXPIRED' | 'ERROR';
 
 export interface TransactionResult {
   status: TransactionStatus;
