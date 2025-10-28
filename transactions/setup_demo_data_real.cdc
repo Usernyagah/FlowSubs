@@ -1,9 +1,14 @@
 // transactions/setup_demo_data_real.cdc
 // Transaction to pre-populate FlowSubs with demo data (real contract interaction)
 
-import FlowSubs from 0xYOUR_CONTRACT_ADDRESS
-import FlowToken from 0x7e60df042a9c0868
-import FungibleToken from 0x9a0766d93b6608b7
+// Main contract imports - REPLACE with your deployed contract address
+import FlowSubs from 0xYOUR_CONTRACT_ADDRESS  // Replace with actual contract address
+
+// Standard Flow token contracts
+import FlowToken from 0x7e60df042a9c0868  // Testnet Flow Token
+import FungibleToken from 0x9a0766d93b6608b7  // Testnet FungibleToken
+
+// Note: AuthAccount is a built-in type in Cadence and is automatically available in transaction prepare blocks
 
 transaction {
     prepare(acct: AuthAccount) {

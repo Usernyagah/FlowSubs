@@ -1,50 +1,64 @@
 // lib/fcl-config.ts
-// FCL configuration for Flow blockchain — ensure only 1 config and correct settings
 import { config } from '@onflow/fcl';
 import type { FCLConfig } from '@/types/flow';
 
+// Environment variable validation
+const requiredEnvVars = [
+  'NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS',
+  'NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID'
+];
+
+// Validate environment variables on server-side
+if (typeof window === 'undefined') {
+  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+  if (missingVars.length > 0) {
+    console.warn(`Missing required environment variables: ${missingVars.join(', ')}`);
+  }
+}
+
 const getContractAddress = (): string => {
-  // Use Vercel env var or real testnet fallback; never a dummy value
-  return process.env.NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS || '0xc1b85cc9470b7283';
+  const contractAddress = process.env.NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS;
+  if (!contractAddress) {
+    console.warn('No contract address found in environment variables. Using testnet fallback.');
+    return '0xc1b85cc9470b7283'; // Testnet fallback
+  }
+  return contractAddress;
 };
 
-// Get app URL with proper fallback
 const getAppUrl = (): string => {
   if (typeof window !== 'undefined') {
-    // Client-side: use current location
     return window.location.origin;
   }
-  // Server-side: use env var or default
   return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 };
 
-// Create a function to get FCL config with proper URL
 const getFCLConfig = (): FCLConfig => {
-  const appUrl = typeof window !== 'undefined' 
-    ? window.location.origin 
-    : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
+  const appUrl = getAppUrl();
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
-  return {
+  const config: FCLConfig = {
     'app.detail.title': 'FlowSubs - Subscription Management',
-    'app.detail.icon': 'https://placehold.co/600x400/000000/FFFFFF/png?text=FlowSubs',
+    'app.detail.icon': `${appUrl}/logo.png`,
     'accessNode.api': 'https://rest-testnet.onflow.org',
     '0xFlowSubs': getContractAddress(),
-
-    // Discovery endpoints (required for wallet authentication, legacy+modern)
     'discovery.authn.endpoint': 'https://fcl-discovery.onflow.org/testnet/authn',
-    'discovery.wallet': 'https://fcl-discovery.onflow.org/testnet/authn', // legacy, required by some wallets
-
-    // WalletConnect plugin, using env project ID
+    'discovery.wallet': 'https://fcl-discovery.onflow.org/testnet/authn',
     'discovery.wallet.method.walletconnect': 'WALLETCONNECT',
     'fcl.wallet.connect': 'https://fcl-ecosystem-walletconnect.vercel.app',
-    'walletconnect.projectId': process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '2b9573d0cfcd983bc65de6e956573f28',
-
+    'walletconnect.projectId': process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
     'app.detail.id': 'flowsubs-app',
     'app.detail.url': appUrl,
-
     'fcl.limit': 9999,
-    'fcl.debug': process.env.NODE_ENV === 'development',
+    'fcl.debug': isDevelopment,
+    // WebSocket configuration
+    'fcl.ws': 'wss://rest-testnet.onflow.org/ws',
+    'fcl.ws.opts': {
+      retry: 3,
+      timeout: 10000,
+    },
   };
+
+  return config;
 };
 
 // Get the config for use in templates
