@@ -13,7 +13,7 @@ transaction(
     prepare(acct: AuthAccount) {
         // Ensure the account has a FlowToken vault
         if acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault) == nil {
-            acct.save(FlowToken.createEmptyVault(), to: /storage/flowTokenVault)
+            acct.save(<-FlowToken.createEmptyVault(), to: /storage/flowTokenVault)
             acct.link<&{FungibleToken.Receiver}>(
                 /public/flowTokenReceiver,
                 target: /storage/flowTokenVault
@@ -29,6 +29,7 @@ transaction(
         
         // Create the subscription
         let subscriptionId = flowSubs.createSubscription(
+            subscriber: acct.address,
             provider: provider,
             amount: amount,
             interval: interval
