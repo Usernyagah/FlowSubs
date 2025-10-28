@@ -37,11 +37,15 @@ export const initializeFCL = () => {
   console.log('🔧 Initializing FCL...');
   config(fclConfig);
   console.log('✅ FCL initialized');
-  console.log('🔧 FCL Config:', {
-    'discovery.wallet': fclConfig['discovery.wallet'],
-    'discovery.wallet.method': fclConfig['discovery.wallet.method'],
-    'discovery.wallet.method.default': fclConfig['discovery.wallet.method.default'],
+  console.log('🔧 FCL Config (subset in use):', {
+    'discovery.authn.endpoint': fclConfig['discovery.authn.endpoint'],
+    'accessNode.api': fclConfig['accessNode.api'],
+    '0xFlowSubs': fclConfig['0xFlowSubs'],
+    'walletconnect.projectId': fclConfig['walletconnect.projectId'],
+    'app.detail.url': fclConfig['app.detail.url']
   });
+  // Print the actual contract address explicitly for debugging runtime env
+  console.warn('[DEBUG] FlowSubs Contract Address in use:', fclConfig['0xFlowSubs']);
 };
 
 // Initialize globally
