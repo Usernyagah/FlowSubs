@@ -33,7 +33,7 @@ export const useFlowSubs = () => {
   // Generic function to handle transactions
   const executeTransaction = useCallback(async (
     transactionCode: string,
-    argsBuilder: any
+    args: any[] = []
   ): Promise<TransactionResult> => {
     // Skip transaction execution if using mock contract
     if (isMockContract()) {
@@ -53,22 +53,15 @@ export const useFlowSubs = () => {
 
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      // Build the transaction with proper argument formatting
-      const transactionId = await fcl.send([
-        fcl.transaction(transactionCode),
-        fcl.args([
-          fcl.arg(params.provider, t.Address),
-          fcl.arg(params.amount.toString(), t.UFix64),
-          fcl.arg(params.interval.toString(), t.UFix64)
-        ]),
-        fcl.payer(fcl.authz),
-        fcl.proposer(fcl.authz),
-        fcl.authorizations([fcl.authz]),
-        fcl.limit(999)
-      ]);
+      // Build the transaction with provided arguments
+      const transactionId = await fcl.mutate({
+        cadence: transactionCode,
+        args: (arg: any, t: any) => args,
+        limit: 999
+      });
 
       // Wait for transaction to be sealed
-      const tx = await query(transactionId);
+      const tx = await fcl.tx(transactionId).onceSealed();
       
       if (tx.status === 4) { // Sealed
         return {
@@ -89,15 +82,18 @@ export const useFlowSubs = () => {
       }
     } catch (error) {
       console.error('Transaction failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Transaction failed';
       setState(prev => ({ 
         ...prev, 
         loading: false,
-        error: error instanceof Error ? error.message : 'Transaction failed'
+        error: errorMessage
       }));
       return {
         status: 'PENDING',
         transactionId: '',
-        error: error instanceof Error ? error.message : 'Transaction failed',
+        error: errorMessage
+      };
+    }    error: error instanceof Error ? error.message : 'Transaction failed',
       };
     }
   }, [user, isMockContract]);
@@ -185,57 +181,63 @@ export const useFlowSubs = () => {
         error: errorMessage
       }));
       return {
-        status: 'PENDING',
-        transactionId: '',
-        error: errorMessage,
-      };
     }
-  }, [connected, user, executeTransaction]);
+  }, [executeTransaction]);
 
   // Cancel a subscription
   const cancelSubscription = useCallback(async (
     subscriptionId: number
   ): Promise<TransactionResult> => {
-    if (!connected || !user?.addr) {
-      throw new Error('Wallet not connected');
+    try {
+      const transactionCode = TRANSACTION_TEMPLATES.cancelSubscription;
+      return await executeTransaction(transactionCode, [
+        fcl.args([
+          fcl.arg(subscriptionId.toString(), fcl.t.UInt64)
+        ])
+      ]);
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      throw error;
     }
-
-    const args = [
-      { type: 'UInt64', value: subscriptionId.toString() },
-    ];
-
-    const result = await executeTransaction(TRANSACTION_TEMPLATES.cancelSubscription, args);
-    
-    if (result.status === 'SEALED') {
-      // Refresh subscriptions after successful cancellation
-      await fetchSubscriptions(user.addr);
-    }
-
-    return result;
-  }, [connected, user, executeTransaction]);
+  }, [executeTransaction]);
 
   // Register as a provider
-  const registerProvider = useCallback(async (
-    name: string,
-    description: string
-  ): Promise<TransactionResult> => {
-    if (!connected || !user?.addr) {
-      throw new Error('Wallet not connected');
+  const registerProvider = useCallback(async (name: string, description: string): Promise<TransactionResult> => {
+    try {
+      const transactionCode = TRANSACTION_TEMPLATES.registerProvider;
+      const result = await fcl.mutate({
+        cadence: transactionCode,
+        args: (arg: any, t: any) => [
+          arg(name, t.String),
+          arg(description, t.String)
+        ],
+        limit: 999
+      });
+
+      // Wait for transaction to be sealed
+      const tx = await fcl.tx(result).onceSealed();
+      
+      if (tx.status === 4) { // Sealed
+        // Refresh providers after successful registration
+        await fetchProviders();
+        return {
+          status: 'SEALED',
+          transactionId: result,
+        };
+      } else {
+        throw new Error(`Transaction failed with status: ${tx.status}`);
+      }
+    } catch (error) {
+      console.error('Error registering provider:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to register provider';
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: errorMessage
+      }));
+      throw error;
     }
-
-    const args = [
-      { type: 'String', value: name },
-      { type: 'String', value: description },
-    ];
-
-    const result = await executeTransaction(TRANSACTION_TEMPLATES.registerProvider, args);
-    
-    if (result.status === 'SEALED') {
-      // Refresh providers after successful registration
-      await fetchProviders();
-    }
-
-    return result;
+  }, [fetchProviders]);
   }, [connected, user, executeTransaction]);
 
   // Fetch subscriptions for a user
