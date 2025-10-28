@@ -8,6 +8,16 @@ const getContractAddress = (): string => {
   return process.env.NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS || '0xc1b85cc9470b7283';
 };
 
+// Get app URL with proper fallback
+const getAppUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    // Client-side: use current location
+    return window.location.origin;
+  }
+  // Server-side: use env var or default
+  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+};
+
 // IMPORTANT: Only initialize FCL once, do NOT call config() in a component or elsewhere
 const fclConfig: FCLConfig = {
   'app.detail.title': 'FlowSubs - Subscription Management',
@@ -22,19 +32,30 @@ const fclConfig: FCLConfig = {
   // WalletConnect plugin, using env project ID
   'discovery.wallet.method.walletconnect': 'WALLETCONNECT',
   'fcl.wallet.connect': 'https://fcl-ecosystem-walletconnect.vercel.app',
-  'walletconnect.projectId': process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'YOUR_WALLETCONNECT_PROJECT_ID',
+  'walletconnect.projectId': process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '2b9573d0cfcd983bc65de6e956573f28',
 
   'app.detail.id': 'flowsubs-app',
   // Must match your deploy (set NEXT_PUBLIC_APP_URL in Vercel dashboard)
-  'app.detail.url': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  'app.detail.url': getAppUrl(),
 
   'fcl.limit': 9999,
   'fcl.debug': process.env.NODE_ENV === 'development',
 };
 
 // Only call this ONCE, at global/module scope
+let initialized = false;
 export const initializeFCL = () => {
+  if (initialized) {
+    console.log('⚠️ FCL already initialized, skipping...');
+    return;
+  }
   console.log('🔧 Initializing FCL...');
+  
+  // Update URL dynamically for client-side
+  if (typeof window !== 'undefined') {
+    fclConfig['app.detail.url'] = window.location.origin;
+  }
+  
   config(fclConfig);
   console.log('✅ FCL initialized');
   console.log('🔧 FCL Config (subset in use):', {
@@ -46,10 +67,8 @@ export const initializeFCL = () => {
   });
   // Print the actual contract address explicitly for debugging runtime env
   console.warn('[DEBUG] FlowSubs Contract Address in use:', fclConfig['0xFlowSubs']);
+  initialized = true;
 };
-
-// Initialize globally
-initializeFCL();
 
 // Contract addresses
 export const CONTRACT_ADDRESSES = {
@@ -68,7 +87,7 @@ export const TRANSACTION_TEMPLATES = {
       amount: UFix64,
       interval: UFix64
     ) {
-      prepare(acct: AuthAccount!) {
+      prepare(acct: AuthAccount) {
         // Note: User must have a FlowToken vault set up before using this transaction
         
         // Create the subscription directly on the contract

@@ -371,15 +371,22 @@ If you find FlowSubs useful, please give it a star on GitHub! It helps us reach 
 
 To deploy FlowSubs on Vercel with correct configuration:
 
-- Go to your project in the Vercel dashboard.
-- Navigate to **Settings → Environment Variables**.
-- Add the following (with correct, real values):
-  - `NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS` — must start with `0x` and be 18 characters, e.g.
-    - `0xc1b85cc9470b7283` (example/testnet contract)
-  - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` — (if using WalletConnect)
-    - Use the actual project ID provided by WalletConnect.
-- **Deploy or redeploy your Vercel project after setting these.**
+### Environment Variables Required:
 
-**Addresses must always be valid Flow addresses (0x-prefixed). Misconfiguration will cause errors.**
+Go to your project in the Vercel dashboard → **Settings → Environment Variables** and add:
 
-For local dev, copy `.env.example` to `.env.local` and use the same format.
+1. **`NEXT_PUBLIC_FLOWSUBS_CONTRACT_ADDRESS`** (Required)
+   - Your deployed FlowSubs contract address on Flow Testnet
+   - Must start with `0x` (e.g., `0xc1b85cc9470b7283`)
+
+2. **`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`** (Required)
+   - Your WalletConnect Project ID from https://cloud.walletconnect.com
+   - Example: `2b9573d0cfcd983bc65de6e956573f28`
+
+3. **`NEXT_PUBLIC_APP_URL`** (Required for Production)
+   - Your Vercel deployment URL (e.g., `https://flow-subs.vercel.app`)
+   - This enables proper wallet discovery on the deployed site
+
+**⚠️ Important:** After adding environment variables, **redeploy your project** for changes to take effect.
+
+For local development, the app automatically uses `http://localhost:3000`.
