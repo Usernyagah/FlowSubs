@@ -68,7 +68,7 @@ export const TRANSACTION_TEMPLATES = {
       amount: UFix64,
       interval: UFix64
     ) {
-      prepare(acct: AuthAccount) {
+      prepare(acct: AuthAccount!) {
         // Note: User must have a FlowToken vault set up before using this transaction
         
         // Create the subscription directly on the contract
