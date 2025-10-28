@@ -146,11 +146,6 @@ import FlowSubs from ${fclConfig['0xFlowSubs']}
 import FungibleToken from 0x9a0766d93b6608b7
 import FlowToken from 0x7e60df042a9c0868
 
-// Required for AuthAccount
-execute {
-  prepare(acct: AuthAccount) {}
-}
-
 transaction(
   provider: Address,
   amount: UFix64,
@@ -174,11 +169,6 @@ import FlowSubs from ${fclConfig['0xFlowSubs']}
 import FungibleToken from 0x9a0766d93b6608b7
 import FlowToken from 0x7e60df042a9c0868
 
-// Required for AuthAccount
-execute {
-  prepare(acct: AuthAccount) {}
-}
-
 transaction(subscriptionId: UInt64) {
   prepare(acct: AuthAccount) {
     FlowSubs.cancelSubscription(subscriptionId: subscriptionId)
@@ -192,11 +182,6 @@ transaction(subscriptionId: UInt64) {
 import FlowSubs from ${fclConfig['0xFlowSubs']}
 import FungibleToken from 0x9a0766d93b6608b7
 import FlowToken from 0x7e60df042a9c0868
-
-// Required for AuthAccount
-execute {
-  prepare(acct: AuthAccount) {}
-}
 
 transaction(
   name: String,
