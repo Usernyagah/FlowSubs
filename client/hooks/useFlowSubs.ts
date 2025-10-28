@@ -93,8 +93,6 @@ export const useFlowSubs = () => {
         transactionId: '',
         error: errorMessage
       };
-    }    error: error instanceof Error ? error.message : 'Transaction failed',
-      };
     }
   }, [user, isMockContract]);
 
