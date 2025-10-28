@@ -80,56 +80,51 @@ export const CONTRACT_ADDRESSES = {
 // Transaction templates
 export const TRANSACTION_TEMPLATES = {
   createSubscription: `
-    import FlowSubs from ${fclConfig['0xFlowSubs']}
+import FlowSubs from ${fclConfig['0xFlowSubs']}
 
-    transaction(
-      provider: Address,
-      amount: UFix64,
-      interval: UFix64
-    ) {
-      prepare(acct: AuthAccount) {
-        // Note: User must have a FlowToken vault set up before using this transaction
-        
-        // Create the subscription directly on the contract
-        let subscriptionId = FlowSubs.createSubscription(
-          subscriber: acct.address,
-          provider: provider,
-          amount: amount,
-          interval: interval
-        )
+transaction(
+  provider: Address,
+  amount: UFix64,
+  interval: UFix64
+) {
+  prepare(acct: AuthAccount) {
+    let subscriptionId = FlowSubs.createSubscription(
+      subscriber: acct.address,
+      provider: provider,
+      amount: amount,
+      interval: interval
+    )
 
-        log("Created subscription with ID: ".concat(subscriptionId.toString()))
-      }
-    }
+    log("Created subscription with ID: ".concat(subscriptionId.toString()))
+  }
+}
   `,
   
   cancelSubscription: `
-    import FlowSubs from ${fclConfig['0xFlowSubs']}
+import FlowSubs from ${fclConfig['0xFlowSubs']}
 
-    transaction(subscriptionId: UInt64) {
-      prepare(acct: AuthAccount) {
-        // Cancel the subscription directly on the contract
-        FlowSubs.cancelSubscription(subscriptionId: subscriptionId)
+transaction(subscriptionId: UInt64) {
+  prepare(acct: AuthAccount) {
+    FlowSubs.cancelSubscription(subscriptionId: subscriptionId)
 
-        log("Cancelled subscription with ID: ".concat(subscriptionId.toString()))
-      }
-    }
+    log("Cancelled subscription with ID: ".concat(subscriptionId.toString()))
+  }
+}
   `,
 
   registerProvider: `
-    import FlowSubs from ${fclConfig['0xFlowSubs']}
+import FlowSubs from ${fclConfig['0xFlowSubs']}
 
-    transaction(
-      name: String,
-      description: String
-    ) {
-      prepare(acct: AuthAccount) {
-        // Register as a provider directly on the contract
-        FlowSubs.registerProvider(name: name, description: description)
+transaction(
+  name: String,
+  description: String
+) {
+  prepare(acct: AuthAccount) {
+    FlowSubs.registerProvider(name: name, description: description)
 
-        log("Registered as provider: ".concat(name))
-      }
-    }
+    log("Registered as provider: ".concat(name))
+  }
+}
   `,
 } as const;
 
