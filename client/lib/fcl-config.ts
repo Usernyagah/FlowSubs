@@ -63,6 +63,7 @@ const getFCLConfig = (): FCLConfig => {
   if (isTestnet) {
     config['app.detail.icon'] = `${appUrl}/flow-logo.png`;
     config['discovery.wallet'] = 'https://fcl-discovery.onflow.org/testnet/authn';
+    config['discovery.authn.endpoint'] = 'https://fcl-discovery.onflow.org/testnet/authn';
     config['accessNode.api'] = 'https://rest-testnet.onflow.org';
     config['0xFlowToken'] = '0x7e60df042a9c0868';
     config['0xFungibleToken'] = '0x9a0766d93b6608b7';
@@ -70,7 +71,7 @@ const getFCLConfig = (): FCLConfig => {
     // Mainnet configuration
     config['accessNode.api'] = 'https://rest-mainnet.onflow.org';
     config['discovery.wallet'] = 'https://fcl-discovery.onflow.org/authn';
-    config['discovery.authn.endpoint'] = 'https://fcl-discovery.onflow.org/api/testnet/authn';
+    config['discovery.authn.endpoint'] = 'https://fcl-discovery.onflow.org/authn';
   }
 
   // Development-specific configuration
@@ -145,6 +146,11 @@ import FlowSubs from ${fclConfig['0xFlowSubs']}
 import FungibleToken from 0x9a0766d93b6608b7
 import FlowToken from 0x7e60df042a9c0868
 
+// Required for AuthAccount
+execute {
+  prepare(acct: AuthAccount) {}
+}
+
 transaction(
   provider: Address,
   amount: UFix64,
@@ -168,6 +174,11 @@ import FlowSubs from ${fclConfig['0xFlowSubs']}
 import FungibleToken from 0x9a0766d93b6608b7
 import FlowToken from 0x7e60df042a9c0868
 
+// Required for AuthAccount
+execute {
+  prepare(acct: AuthAccount) {}
+}
+
 transaction(subscriptionId: UInt64) {
   prepare(acct: AuthAccount) {
     FlowSubs.cancelSubscription(subscriptionId: subscriptionId)
@@ -181,6 +192,11 @@ transaction(subscriptionId: UInt64) {
 import FlowSubs from ${fclConfig['0xFlowSubs']}
 import FungibleToken from 0x9a0766d93b6608b7
 import FlowToken from 0x7e60df042a9c0868
+
+// Required for AuthAccount
+execute {
+  prepare(acct: AuthAccount) {}
+}
 
 transaction(
   name: String,
